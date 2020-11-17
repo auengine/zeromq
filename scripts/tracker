@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+##Usage : ./tracker [serverCommandPort] [publisherSubscribePort] [serverIp]
+##Usage : ./tracker  20123 20321 127.0.0.1
+
+VERSION=$(cat ../version.txt)
+
+
+"${JAVA_HOME}"/bin/java \
+    -cp ../target/zeromq-${VERSION}-jar-with-dependencies.jar \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:+TrustFinalNonStaticFields \
+    -XX:+UnlockDiagnosticVMOptions \
+    -XX:GuaranteedSafepointInterval=300000 \
+    -XX:+UseParallelOldGC \
+    -XX:+PrintGC \
+    -Dzeromq.config.server.port=$1 \
+    -Dzeromq.config.publisher.port=$2 \
+    -Dzeromq.config.server.ip=$3 \
+    ${JVM_OPTS} com.bist.zeromq.ZeroPeerTracker

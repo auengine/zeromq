@@ -1,0 +1,12 @@
+package com.bist.zeromq.config;
+
+public enum CommandCode
+{
+    UPDATE_PEER_REMOTE,
+    UPDATE_PEER_LOCAL,
+    NEW_PROCESS_REGISTERED_TO_TRACKER,
+    REGISTER_NEW_PROCESS_TO_TRACKER,
+    REGISTER_NEW_PROCESS_TO_PEER,
+
+
+}

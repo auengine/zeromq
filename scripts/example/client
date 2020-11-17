@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+##Usage : ./server {serverIp} [streamId] [mediaTypeName] [exclusive] [embedded]
+##Usage : ./server 127.0.0.1 123 normalMedia true true
+
+VERSION=$(cat ../version.txt)
+
+
+"${JAVA_HOME}"/bin/java \
+    -cp ../../target/zeromq-${VERSION}-jar-with-dependencies.jar \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:+TrustFinalNonStaticFields \
+    -XX:+UnlockDiagnosticVMOptions \
+    -XX:GuaranteedSafepointInterval=300000 \
+    -XX:+UseParallelOldGC \
+    -XX:+PrintGC \
+    -Dzeromq.config.server.port=20103 \
+    -Dzeromq.config.server.ip="127.0.0.1" \
+    ${JVM_OPTS} com.bist.zeromq.example.EchoClient
