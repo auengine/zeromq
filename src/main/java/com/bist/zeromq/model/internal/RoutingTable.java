@@ -35,14 +35,14 @@ public class RoutingTable implements IInternalInfo
 
     public String buildTableStr(){
         StringBuilder builder = new StringBuilder();
-        builder.append("****Table Content****\n");
+        builder.append("\n****Table Content****\n");
 
         for (Map.Entry<QueryType,PeerProcessInfo> q:queryTable.entrySet()
              )
         {
-            builder.append(q.getKey() +
-                    "-> Process: " + q.getValue().getProcessInfo().printStr() +
-                    "-> Peer: " + q.getValue().getProcessInfo().printStr() +"\n" );
+            builder.append("Query Type:" +q.getKey() +
+                    " Process: " + q.getValue().getProcessInfo().printStr() +
+                    " Peer: " + q.getValue().getPeerInfo().printStr() +"\n" );
         }
 
         return  builder.toString();

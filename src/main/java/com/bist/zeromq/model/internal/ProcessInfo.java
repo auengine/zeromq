@@ -29,7 +29,7 @@ public class ProcessInfo  implements IInternalInfo
     }
 
     public String printStr(){
-        return type + "---> " +ipcPath + "--->" + name;
+        return "PType: " + type + " ipc: " +ipcPath + " name: " + name;
     }
 
 }

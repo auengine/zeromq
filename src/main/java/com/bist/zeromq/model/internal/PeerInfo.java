@@ -21,6 +21,7 @@ public class PeerInfo implements IInternalInfo
 
     public String printStr(){
         return name + "---> " +ip + ":" + port;
+
     }
 
 

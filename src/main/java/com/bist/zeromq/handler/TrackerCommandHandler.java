@@ -64,7 +64,7 @@ public class TrackerCommandHandler extends Thread
                 reportWriter.println("Received new command on tracker command handler");
 
                 Command command = CommandService.base642Command(message);
-                if (command.getCommandCode() == CommandCode.REGISTER_NEW_PROCESS_TO_PEER)
+                if (command.getCommandCode() == CommandCode.REGISTER_NEW_PROCESS_TO_TRACKER)
                 {
                     PeerProcessInfo peerProcessInfo = (PeerProcessInfo)command.getData();
                     zeroTrackerRoutingInfo.registerNewProcess(peerProcessInfo);

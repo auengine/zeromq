@@ -8,12 +8,12 @@ import java.util.Map;
 @Data
 public class PeerProcessInfo implements IInternalInfo
 {
-    private PeerInfo pearInfo;
+    private PeerInfo peerInfo;
     private ProcessInfo processInfo;
 
-    public PeerProcessInfo(final PeerInfo pearInfo, final ProcessInfo processInfo)
+    public PeerProcessInfo(final PeerInfo peerInfo, final ProcessInfo processInfo)
     {
-        this.pearInfo = pearInfo;
+        this.peerInfo = peerInfo;
         this.processInfo = processInfo;
     }
 }
