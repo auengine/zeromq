@@ -1,5 +1,6 @@
 package com.bist.zeromq.handler;
 
+import com.bist.zeromq.config.AppType;
 import com.bist.zeromq.config.CommandCode;
 import com.bist.zeromq.model.ZeroTrackerRoutingInfo;
 import com.bist.zeromq.model.internal.PeerProcessInfo;
@@ -67,9 +68,10 @@ public class TrackerCommandHandler extends Thread
                 if (command.getCommandCode() == CommandCode.REGISTER_NEW_PROCESS_TO_TRACKER)
                 {
                     PeerProcessInfo peerProcessInfo = (PeerProcessInfo)command.getData();
+                    CommandCode commandCode= peerProcessInfo.getProcessInfo().getType() == AppType.SERVER ?
+                        CommandCode.NEW_SERVER_REGISTERED_TO_TRACKER : CommandCode.NEW_CLIENT_REGISTERED_TO_TRACKER;
                     zeroTrackerRoutingInfo.registerNewProcess(peerProcessInfo);
-                    String encodedMessage = CommandService.createCommand(zeroTrackerRoutingInfo.getRoutingTable(),
-                        CommandCode.NEW_PROCESS_REGISTERED_TO_TRACKER);
+                    String encodedMessage = CommandService.createCommand(zeroTrackerRoutingInfo.getRoutingTable(),commandCode);
                     reportWriter.println(zeroTrackerRoutingInfo.getRoutingTable().buildTableStr());
                     publisherSocket.send(encodedMessage);
 

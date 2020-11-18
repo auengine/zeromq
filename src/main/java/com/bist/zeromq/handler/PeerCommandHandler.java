@@ -133,18 +133,25 @@ public class PeerCommandHandler extends Thread
         }
         Command command = CommandService.base642Command(message);
 
-
-        if (command.getCommandCode() == CommandCode.NEW_PROCESS_REGISTERED_TO_TRACKER)
+        reportWriter.printf("Command handler: %s!\n",command.getCommandCode());
+        if (command.getCommandCode() == CommandCode.NEW_SERVER_REGISTERED_TO_TRACKER)
         {
-            reportWriter.printf("Command handler: %s!",CommandCode.NEW_PROCESS_REGISTERED_TO_TRACKER);
             RoutingTable newRoutingTable = (RoutingTable)command.getData();
             zeroPeerRoutingInfo.update(newRoutingTable);
             reportWriter.println(zeroPeerRoutingInfo.getRoutingTable().buildTableStr());
+            reportWriter.println("New server registered ack!");
+        }else if (command.getCommandCode() == CommandCode.NEW_CLIENT_REGISTERED_TO_TRACKER)
+        {
+            RoutingTable newRoutingTable = (RoutingTable)command.getData();
+            zeroPeerRoutingInfo.update(newRoutingTable);
+            reportWriter.println(zeroPeerRoutingInfo.getRoutingTable().buildTableStr());
+            reportWriter.println("New client registered ack!");
+            // start pooling
         }
         //from process
         else if (command.getCommandCode() == CommandCode.REGISTER_NEW_PROCESS_TO_PEER)
         {
-            reportWriter.printf("Command handler: %s!\n",CommandCode.REGISTER_NEW_PROCESS_TO_PEER);
+
             ProcessInfo processInfo = (ProcessInfo)command.getData();
             PeerProcessInfo peerProcessInfo =
                 new PeerProcessInfo(zeroPeerRoutingInfo.getCurrentPeerInfo(), processInfo);

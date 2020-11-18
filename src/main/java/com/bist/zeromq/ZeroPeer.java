@@ -4,6 +4,7 @@ import com.bist.zeromq.config.Configuration;
 import com.bist.zeromq.handler.PeerCommandHandler;
 import com.bist.zeromq.handler.PeerStreamHandler;
 import com.bist.zeromq.model.ZeroPeerRoutingInfo;
+import com.bist.zeromq.service.AnswerService;
 import com.bist.zeromq.utils.ConnectionUtils;
 import com.bist.zeromq.utils.GeneralUtils;
 import com.bist.zeromq.utils.ReportWriter;
@@ -94,6 +95,7 @@ public class ZeroPeer
                     commandInprocSocket.send(message);
                     //wait for thread for ok!
                     commandInprocSocket.recv();
+                    commandSocket.send(AnswerService.getOKMessage());
                 }
                 //stream
                 if (poller.pollin(1))
@@ -102,7 +104,9 @@ public class ZeroPeer
                     reportWriter.println("Stream received");
                     streamInprocSocket.send(message);
                     //wait for thread for ok!
-                    streamInprocSocket.recv();
+                    byte[] reply= streamInprocSocket.recv();
+                    streamSocket.send(reply);
+                    reportWriter.println("Stream sended!");
                 }
             }
         }

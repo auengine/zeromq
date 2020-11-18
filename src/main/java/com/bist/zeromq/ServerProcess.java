@@ -21,7 +21,7 @@ public class ServerProcess
         Configuration.QEUERY_LIST);
     private static final List<Integer> trtList = Configuration.getSortedProperties(
         Configuration.TRT_LIST);
-    private static final String ipcIn = "in_" ; //+instanceId + ServerProcess.class.getSimpleName();
+    private static final String ipcIn = "in_" +instanceId ; //+ ServerProcess.class.getSimpleName();
    // private static final String ipcOut = "out_" + ServerProcess.class.getSimpleName();
 
     private static ReportWriter reportWriter;
