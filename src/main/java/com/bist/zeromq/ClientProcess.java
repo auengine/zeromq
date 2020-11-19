@@ -52,7 +52,7 @@ public class ClientProcess
 
             //  - wait for  reply
             commandSocket.recv(0);
-            reportWriter.printf("Starting sending on ipc %s", ipcOut);
+            reportWriter.printf("Starting sending on ipc %s\n", ipcOut);
 
             // Socket to talk to local peer process
             ipcOutSocket = context.createSocket(SocketType.REQ);
@@ -69,7 +69,7 @@ public class ClientProcess
                 // Print the message
                 //reportWriter.println("Received: [" + message + "]");
 
-                reportWriter.println("Message acknowledged.");
+                reportWriter.printf("Message acknowledged: %s \n",answer);
             }
         }
         catch (Exception e)

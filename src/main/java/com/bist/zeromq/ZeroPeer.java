@@ -24,6 +24,7 @@ public class ZeroPeer
     private static final int publisherCommandPort = Configuration.PUBLISHER_COMMAND_PORT;
     private static final String inProcCommandPath = "inproc_p_command_1";
     private static final String inProcStreamPath = "inproc_p_stream_1";
+    private static final String inProcStreamThreadPath = "inproc_p_stream_2";
     private static final String instanceName = UUID.randomUUID().toString();
     private static final ZeroPeerRoutingInfo zeroPeerRoutingInfo = new ZeroPeerRoutingInfo(instanceName,serverIp,serverCommandPort);
     private static ReportWriter reportWriter;
@@ -57,14 +58,15 @@ public class ZeroPeer
             streamSocket.bind(ConnectionUtils.tcp(serverStreamPort));
 
              commandHandler = new PeerCommandHandler(context, publisherIp, publisherCommandPort,
-                publisherSubscribePort, inProcCommandPath,
+                publisherSubscribePort, inProcCommandPath,inProcStreamThreadPath,
                 zeroPeerRoutingInfo, reportWriter);
 
-            streamHandler = new PeerStreamHandler(context, inProcStreamPath,
+            streamHandler = new PeerStreamHandler(context, inProcStreamPath,inProcStreamThreadPath,
                 zeroPeerRoutingInfo, reportWriter);
 
-            commandHandler.start();
+            //order important
             streamHandler.start();
+            commandHandler.start();
 
             // Thread handler sockets
             commandInprocSocket = context.createSocket(SocketType.PAIR);
@@ -73,14 +75,16 @@ public class ZeroPeer
             streamInprocSocket.connect(ConnectionUtils.inproc(inProcStreamPath));
 
             //wait for thread for ok!
-            commandInprocSocket.recv();
             streamInprocSocket.recv();
+            commandInprocSocket.recv();
+
 
             //  Initialize poll set
             poller = context.createPoller(2);
             poller.register(commandSocket, ZMQ.Poller.POLLIN);
             poller.register(streamSocket, ZMQ.Poller.POLLIN);
             reportWriter.println("Starting pooling in  peer.");
+
             while (!Thread.currentThread().isInterrupted())
             {
 
@@ -91,22 +95,23 @@ public class ZeroPeer
                 if (poller.pollin(0))
                 {
                     byte[] message = commandSocket.recv(0);
-                    reportWriter.println("Command received!");
+                    reportWriter.println("Command socket received!");
                     commandInprocSocket.send(message);
                     //wait for thread for ok!
                     commandInprocSocket.recv();
                     commandSocket.send(AnswerService.getOKMessage());
+                    reportWriter.println("Command processed!");
                 }
                 //stream
                 if (poller.pollin(1))
                 {
                     byte[] message = streamSocket.recv(0);
-                    reportWriter.println("Stream received");
+                    reportWriter.println("Stream socket received");
                     streamInprocSocket.send(message);
                     //wait for thread for ok!
                     byte[] reply= streamInprocSocket.recv();
                     streamSocket.send(reply);
-                    reportWriter.println("Stream sended!");
+                    reportWriter.println("Stream directed to stream socket.!");
                 }
             }
         }

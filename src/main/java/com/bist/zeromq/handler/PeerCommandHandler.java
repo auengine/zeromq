@@ -20,6 +20,7 @@ import java.io.IOException;
 public class PeerCommandHandler extends Thread
 {
     private final String inProcPath;
+    private final String inProcThreadPath;
     private final ZeroPeerRoutingInfo zeroPeerRoutingInfo;
     private final ReportWriter reportWriter;
     private final ZContext context;
@@ -30,16 +31,18 @@ public class PeerCommandHandler extends Thread
     private ZMQ.Socket inProcSocket;
     private ZMQ.Socket publisherServerSocket;
     private ZMQ.Socket subscriberSocket;
+    private ZMQ.Socket inProcThreadSocket;
     private ZMQ.Poller poller;
 
     public PeerCommandHandler(ZContext context, String publisherIp, int publisherServerPort,
-        int publisherSubscribePort, String inProcPath, ZeroPeerRoutingInfo zeroPeerRoutingInfo,
+        int publisherSubscribePort, String inProcPath,String inProcThreadPath, ZeroPeerRoutingInfo zeroPeerRoutingInfo,
         ReportWriter reportWriter)
     {
         this.context = context;
         this.zeroPeerRoutingInfo = zeroPeerRoutingInfo;
         this.reportWriter = reportWriter;
         this.inProcPath = inProcPath;
+        this.inProcThreadPath = inProcThreadPath;
         this.publisherIp = publisherIp;
         this.publisherServerPort = publisherServerPort;
         this.publisherSubscribePort = publisherSubscribePort;
@@ -54,6 +57,9 @@ public class PeerCommandHandler extends Thread
             reportWriter.printf("Thread started with inProcPath %s \n", this.inProcPath);
             inProcSocket = context.createSocket(SocketType.PAIR);
             inProcSocket.bind(ConnectionUtils.inproc(inProcPath));
+
+            inProcThreadSocket = context.createSocket(SocketType.PAIR);
+            inProcThreadSocket.connect(ConnectionUtils.inproc(inProcThreadPath));
 
             //  First, connect our subscriber socket
             subscriberSocket = context.createSocket(SocketType.SUB);
@@ -84,14 +90,16 @@ public class PeerCommandHandler extends Thread
                 if (poller.pollin(0))
                 {
                     message = inProcSocket.recv(0);
+                    handleCommand(message);
                     inProcSocket.send(AnswerService.getOKMessage());
                 }
                 //subscriber
                 if (poller.pollin(1))
                 {
                     message = subscriberSocket.recv(0);
+                    handleCommand(message);
                 }
-                handleCommand(message);
+
 
             }
 
@@ -146,7 +154,12 @@ public class PeerCommandHandler extends Thread
             zeroPeerRoutingInfo.update(newRoutingTable);
             reportWriter.println(zeroPeerRoutingInfo.getRoutingTable().buildTableStr());
             reportWriter.println("New client registered ack!");
-            // start pooling
+            // trigger polling
+            inProcThreadSocket.send(CommandService
+                .createCommand(null, CommandCode.NEW_CLIENT_REGISTERED_TO_TRACKER));
+            inProcThreadSocket.recv(0);
+            reportWriter.println("Stream thread notifyed!");
+
         }
         //from process
         else if (command.getCommandCode() == CommandCode.REGISTER_NEW_PROCESS_TO_PEER)

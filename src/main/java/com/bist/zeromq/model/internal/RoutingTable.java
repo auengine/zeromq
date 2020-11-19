@@ -3,7 +3,10 @@ package com.bist.zeromq.model.internal;
 import com.bist.zeromq.config.AppType;
 import com.bist.zeromq.config.QueryType;
 import com.bist.zeromq.config.TrtType;
+import com.bist.zeromq.model.transfer.Query;
 import lombok.Data;
+import org.zeromq.ZContext;
+import org.zeromq.ZMQ;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +16,11 @@ import java.util.Map;
 @Data
 public class RoutingTable implements IInternalInfo
 {
-    List<PeerProcessInfo> clientProcesses = new ArrayList<>();
-    Map<QueryType, PeerProcessInfo> queryTable = new HashMap<>();
-    Map<TrtType, PeerProcessInfo> trtTable = new HashMap<>();
+    //clients
+   private List<PeerProcessInfo> clientProcesses = new ArrayList<>();
+   //servers data
+   private Map<QueryType, PeerProcessInfo> queryTable = new HashMap<>();
+   private Map<TrtType, PeerProcessInfo> trtTable = new HashMap<>();
 
     public void addRoute(PeerProcessInfo p)
     {
@@ -42,6 +47,16 @@ public class RoutingTable implements IInternalInfo
                         trtTable.put(trtType, p);
                     }
                 }
+            }
+        }
+    }
+
+    public void getClientsForPeer(PeerInfo currentPeer,List<PeerProcessInfo> out)
+    {
+        for (PeerProcessInfo p:getClientProcesses() )
+        {
+            if(currentPeer.equals(p.getPeerInfo())){
+                out.add(p);
             }
         }
     }

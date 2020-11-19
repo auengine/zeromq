@@ -2,6 +2,7 @@ package com.bist.zeromq;
 
 import com.bist.zeromq.config.*;
 import com.bist.zeromq.model.internal.ProcessInfo;
+import com.bist.zeromq.service.AnswerService;
 import com.bist.zeromq.service.CommandService;
 import com.bist.zeromq.utils.GeneralUtils;
 import com.bist.zeromq.utils.ReportWriter;
@@ -21,7 +22,7 @@ public class ServerProcess
         Configuration.QEUERY_LIST);
     private static final List<Integer> trtList = Configuration.getSortedProperties(
         Configuration.TRT_LIST);
-    private static final String ipcIn = "in_" +instanceId ; //+ ServerProcess.class.getSimpleName();
+    private static final String ipcIn = "ipc_s_in_" +instanceId ; //+ ServerProcess.class.getSimpleName();
    // private static final String ipcOut = "out_" + ServerProcess.class.getSimpleName();
 
     private static ReportWriter reportWriter;
@@ -45,9 +46,6 @@ public class ServerProcess
 
             ProcessInfo processInfo = new ProcessInfo(instanceName, AppType.SERVER,ipcIn,queryTypeList,trtTypeList);
 
-            // Socket to talk to local peer process
-            ipcInSocket = context.createSocket(SocketType.REP);
-            ipcInSocket.bind(ConnectionUtils.ipc(ipcIn));
 
             // Socket to talk to peer process command port
             reportWriter.println("Connecting peer command port");
@@ -57,22 +55,20 @@ public class ServerProcess
             commandSocket.send(base64Command);
             //  wait for  reply
             commandSocket.recv(0);
-            reportWriter.printf("Starting listening on ipc %s", ipcIn);
+
+            // Socket to talk to local peer process
+            ipcInSocket = context.createSocket(SocketType.REP);
+            ipcInSocket.bind(ConnectionUtils.ipc(ipcIn));
+            reportWriter.printf("Starting listening on ipc %s\n", ipcIn);
 
             while (!Thread.currentThread().isInterrupted())
             {
                 // Block until a message is received
-                reportWriter.println("Calling recv ");
-                byte[] reply = ipcInSocket.recv(0);
-                String request = new String(reply, ZMQ.CHARSET);
-                // Print the message
-                //reportWriter.println("Received: [" + message + "]");
-
-
-                // Send a response
-                String response = "Echo:" + request;
-                ipcInSocket.send(response.getBytes(ZMQ.CHARSET), 0);
-                reportWriter.println("Response send");
+                reportWriter.println("Waiting for request!");
+                byte[] request = ipcInSocket.recv(0);
+                reportWriter.println("Answering request!");
+                ipcInSocket.send(AnswerService.getJunkMessage(MessageSize.KB60), 0);
+                reportWriter.println("Requested answered");
             }
         }
         catch (Exception e)

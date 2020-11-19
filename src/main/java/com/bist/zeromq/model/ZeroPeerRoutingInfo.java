@@ -11,8 +11,7 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class ZeroPeerRoutingInfo
@@ -20,7 +19,9 @@ public class ZeroPeerRoutingInfo
     private final PeerInfo currentPeerInfo;
     private final Map<ProcessInfo, ZMQ.Socket> processSocketMap = new HashMap<>();
     private final Map<PeerInfo, ZMQ.Socket> peerSocketMap = new HashMap<>();
+    private final Map<ProcessInfo, ZMQ.Socket> clientSocketMap = new HashMap<>();
     private RoutingTable routingTable;
+
 
     public ZeroPeerRoutingInfo(final String name, final String ip, final int port)
     {
@@ -32,15 +33,32 @@ public class ZeroPeerRoutingInfo
         this.routingTable = routingTable;
     }
 
+    public Optional<ZMQ.Socket> getNewClientSocket(ZContext context)
+    {
+        List<PeerProcessInfo> currentList=new ArrayList<>();
+        routingTable.getClientsForPeer(currentPeerInfo,currentList);
+
+        for (PeerProcessInfo client:currentList)
+        {
+            ProcessInfo processInfo =client.getProcessInfo();
+           if(!clientSocketMap.containsKey(processInfo)){
+               ZMQ.Socket socket = create(processInfo,context);
+               processSocketMap.put(processInfo, socket);
+               return Optional.of(socket);
+           }
+
+        }
+       return Optional.ofNullable(null);
+
+    }
+
     public ZMQ.Socket getStreamSocket(Query query, ZContext context)
     {
-
         PeerProcessInfo peerProcessInfo = routingTable.getQueryTable().get(query.getQueryType());
         if (peerProcessInfo == null)
         {
             throw new IllegalStateException("No route found for " + query.getQueryType());
         }
-
         //route to process
         if (peerProcessInfo.getPeerInfo().equals(currentPeerInfo))
         {
@@ -51,7 +69,6 @@ public class ZeroPeerRoutingInfo
                 processSocketMap.put(processInfo, socket);
             }
             return this.processSocketMap.get(processInfo);
-
         }
         else
         {   //route to another peer
@@ -66,19 +83,20 @@ public class ZeroPeerRoutingInfo
 
     }
 
-
     private ZMQ.Socket create(ProcessInfo processInfo, ZContext context)
     {
 
         switch (processInfo.getType())
         {
+            //reverse
             case CLIENT:
                 ZMQ.Socket socket = context.createSocket(SocketType.REP);
-                socket.connect(ConnectionUtils.ipc(processInfo.getIpcPath()));
+                socket.bind(ConnectionUtils.ipc(processInfo.getIpcPath()));
                 return socket;
             case SERVER:
                 socket = context.createSocket(SocketType.REQ);
-                socket.bind(ConnectionUtils.ipc(processInfo.getIpcPath()));
+                socket.connect(ConnectionUtils.ipc(processInfo.getIpcPath()));
+
                 return socket;
             default:
                 break;

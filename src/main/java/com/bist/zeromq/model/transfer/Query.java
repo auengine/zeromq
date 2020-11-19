@@ -44,4 +44,10 @@ public class Query implements IMessage
         return serialized;
 
     }
+
+    public String toString(){
+        return queryType + "-" + requestedAnswerSize;
+    }
+
+
 }
