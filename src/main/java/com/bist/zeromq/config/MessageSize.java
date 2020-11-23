@@ -4,7 +4,7 @@ package com.bist.zeromq.config;
 
 public enum MessageSize
 {
-  KB60(0,1024*60),KB300(1,1024*300),
+    KB60(0,1024*60),KB300(1,1024*300),
     KB600(2,1024*600),MB3(3,1024 *1024 *3),
     MB30(4,1024 * 1024 *30),TYPE_UNKNOWN(-1,-1);
 
@@ -17,6 +17,8 @@ public enum MessageSize
    public int getSize(){
      return size;
    }
+
+
 
     public static MessageSize getByCode(int code)
     {

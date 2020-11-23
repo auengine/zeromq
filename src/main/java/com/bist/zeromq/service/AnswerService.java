@@ -7,10 +7,8 @@ import java.nio.ByteBuffer;
 
 public class AnswerService
 {
-    private  static int MAX_ANSWER_SIZE =MessageSize.MB30.getSize();
-
     private static final byte[] ok = new byte[]{ 'O', 'K' };
-    private static byte[] answer= ByteBuffer.allocate(MAX_ANSWER_SIZE).array();
+    private static byte[] answer= ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
     private  static boolean init =false;
     private static final byte[] dummy = new byte[]{ 'M', 'U','R', 'A' ,'T','!'  };
 

@@ -1,6 +1,8 @@
 package com.bist.zeromq.handler;
 
 import com.bist.zeromq.config.CommandCode;
+import com.bist.zeromq.config.Constants;
+import com.bist.zeromq.config.MessageSize;
 import com.bist.zeromq.model.ZeroPeerRoutingInfo;
 import com.bist.zeromq.model.transfer.Command;
 import com.bist.zeromq.model.transfer.Request;
@@ -12,6 +14,7 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
+import java.nio.ByteBuffer;
 import java.util.Optional;
 
 
@@ -25,6 +28,8 @@ public class PeerStreamHandler extends Thread
     private ZMQ.Socket inProcSocket;
     private ZMQ.Socket inProcThreadSocket;
     private ZMQ.Poller poller;
+    private static final byte[] answerBuffer = ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
+
 
 
     public PeerStreamHandler(ZContext context, String inProcPath, String inProcThreadPath, ZeroPeerRoutingInfo zeroPeerRoutingInfo,
@@ -71,9 +76,9 @@ public class PeerStreamHandler extends Thread
                 if (poller.pollin(0))
                 {
                     reportWriter.println("Handling stream reguest for peer!");
-                    byte[] stream = inProcSocket.recv(0);
+                    int size = inProcSocket.recv(answerBuffer,0,answerBuffer.length,0);
                   //  inProcSocket.send(AnswerService.getOKMessage());
-                    handleStream(stream,inProcSocket);
+                    handleStream(answerBuffer,inProcSocket);
 
                 }
                 //command thread
@@ -102,9 +107,9 @@ public class PeerStreamHandler extends Thread
                     if (poller.pollin(i))
                     {
                         ZMQ.Socket client = poller.getSocket(i);
-                        byte[] stream = client.recv(0);
-                        reportWriter.printf("Handling stream reguest for client %d!\n", i);
-                        handleStream(stream,client);
+                        int size = client.recv(answerBuffer,0,answerBuffer.length,0);
+                        reportWriter.printf("Handling stream request for poller index %d!\n", i-1);
+                        handleStream(answerBuffer,client);
 
 
                     }
@@ -141,9 +146,9 @@ public class PeerStreamHandler extends Thread
         ZMQ.Socket socket = zeroPeerRoutingInfo.getStreamSocket(request, context);
         reportWriter.println("Directing stream to destination!");
         socket.send(stream);
-        byte[] reply = socket.recv();
+        int answerSize = socket.recv(answerBuffer,0,answerBuffer.length,0 );
         reportWriter.println("Directing stream requester!");
-        out.send(reply);
+        out.send(answerBuffer,0,answerSize,0);
         reportWriter.println("Stream answer returned!");
 
 

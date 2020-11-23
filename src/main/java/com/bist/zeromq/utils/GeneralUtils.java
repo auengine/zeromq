@@ -4,6 +4,7 @@ import com.bist.zeromq.config.MessageSize;
 import com.bist.zeromq.config.MessageType;
 
 import java.io.FileNotFoundException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -35,13 +36,30 @@ public class GeneralUtils
            tmp= "/tmp/zeromq/";
             String folder="ZERO-"+ (messageType.isQuery() ? "Q-":"T-" ) +totalClientCount +"-" + totalMessageTypeCount ;
             if(messageType.isQuery()){
-                folder += "-"+ (messageSize.name());
+                folder += "-"+ size(messageSize,totalClientCount);
             }
 
-            String file = "ZERO-"+ messageType.name() +"-" + messageSize.name() + "-1111-"+ "L" + instance+ ".dump";
+            String file = "ZERO-"+ messageType.name() +"-" + size(messageSize,1) + "-1111-"+ "L" + instance+ ".dump";
 
             return  tmp + "/" + folder +"/" + file;
 
+        }
+
+    }
+
+     private static int kb= 1024;
+     private static int mb= 1024* 1024;
+
+
+    private static String size(MessageSize messageSize, int total ){
+        DecimalFormat f= new DecimalFormat("#.#");
+        double bytes= messageSize.getSize() * total;
+        if(bytes>= mb){
+            double n= bytes/mb;
+           return f.format(n)+"mb".replace(',','.');
+        }else{
+            double n= bytes/kb;
+            return  f.format(n)+"kb".replace(',','.');
         }
 
     }

@@ -35,7 +35,7 @@ public class ServerProcess
     private static final List<MessageType> queryTypeList= MessageType.asEnum(queryList);
     private static final List<MessageType> trtTypeList= MessageType.asEnum(trtList);
 
-    private static final byte[] queryAndTrtBuffer = ByteBuffer.allocate(MessageSize.MB30.getSize()).array();
+    private static final byte[] queryAndTrtBuffer = ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
 
 
     public static void main(String[] args)
@@ -70,11 +70,10 @@ public class ServerProcess
                 // Block until a message is received
                 reportWriter.println("Waiting for request!");
                 int querySize = ipcInSocket.recv(queryAndTrtBuffer,0,Request.getByteSize(),0 );
-                Request query=Request.decodedForm(queryAndTrtBuffer);
-                reportWriter.printf("Request is %s!\n",query.toString());
-                reportWriter.println("Answering request!");
-                ipcInSocket.send(AnswerService.getAnswer(),0,query.getRequestedAnswerSize().getSize(), 0);
-                reportWriter.printf("Requested answered %s\n",query.getRequestedAnswerSize().getSize());
+                Request request=Request.decodedForm(queryAndTrtBuffer);
+                reportWriter.printf("Request is %s answer size %s!\n",request.toString(),request.getRequestedAnswerSize().getSize());
+                ipcInSocket.send(AnswerService.getAnswer(),0,request.getRequestedAnswerSize().getSize(), 0);
+                reportWriter.println("Requested answered!");
             }
         }
         catch (Exception e)

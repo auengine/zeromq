@@ -35,8 +35,8 @@ public class ClientProcess
     private static ZMQ.Socket ipcOutSocket;
     private static final Statistics statistics = new LatencyStatistics(10);
     private static final int numberOfMessages = Configuration.MESSAGE_COUNT;
-    private static final int numberOfWarmUpMessages = 1000;
-    private static final byte[] answerBuffer = ByteBuffer.allocate(MessageSize.MB30.getSize()).array();
+    private static final int numberOfWarmUpMessages = 10;
+    private static final byte[] answerBuffer = ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
 
     private static final int totalClientCount = Configuration.TOTAL_CLIENT_COUNT;
     private static final int totalMessageTypeCount = Configuration.TOTAL_MESSAGE_TYPE_COUNT;
@@ -108,12 +108,13 @@ public class ClientProcess
                         int answerSize = ipcOutSocket.recv(answerBuffer, 0, segmentSize.getSize(), 0);
                         if (answerSize != segmentSize.getSize())
                         {
-                            reportWriter.errorf("Segment mismatch %d expected %d \n", answerSize, segmentSize
+                            reportWriter.printf("Segment mismatch %d expected %d \n", answerSize, segmentSize
                                 .getSize());
                         }
                         reportWriter.printf("Segment response time %d \n", System.nanoTime() - beginTime);
                     }
                     long executionTime = System.nanoTime() - beginTime;
+                    reportWriter.printf("Request response time %d \n", executionTime);
                     statistics.transactionCompleted(executionTime);
                 }
 
@@ -165,7 +166,7 @@ public class ClientProcess
             int answerSize = ipcOutSocket.recv(answerBuffer, 0, messageSize.getSize(), 0);
             if (answerSize != messageSize.getSize())
             {
-                reportWriter.errorf("Segment mismatch %d expected %d \n",
+                reportWriter.printf("Segment mismatch %d expected %d \n",
                     answerSize, messageSize.getSize());
             }
 
