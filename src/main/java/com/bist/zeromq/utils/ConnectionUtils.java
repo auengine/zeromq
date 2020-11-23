@@ -26,17 +26,6 @@ public class ConnectionUtils
         return "tcp://" + ip + ":" + port;
     }
 
-    private static String OS = null;
-    private static String getOsName()
-    {
-        if(OS == null) { OS = System.getProperty("os.name"); }
-        return OS;
-    }
-    public static boolean isWindows()
-    {
 
-        OS = System.getProperty("os.name");
-        return getOsName().startsWith("Windows");
-    }
 
 }

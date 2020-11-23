@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ##Usage : ./serverProcess [peerCommandPort] [instanceId] [QueryList] [TrtList]
-##Usage : ./serverProcess  20123 1 0|6 1|7
+##Usage : ./serverProcess  20123 1 1|2 4|5
 
 VERSION=$(cat ../version.txt)
 
@@ -13,6 +13,7 @@ VERSION=$(cat ../version.txt)
     -XX:+UnlockDiagnosticVMOptions \
     -XX:GuaranteedSafepointInterval=300000 \
     -XX:+UseParallelOldGC \
+    -XX:InitialHeapSize=128m \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=$1 \
     -Dzeromq.config.instance.id=$2 \

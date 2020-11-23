@@ -1,10 +1,11 @@
 package com.bist.zeromq.model;
 
+import com.bist.zeromq.config.MessageType;
 import com.bist.zeromq.model.internal.PeerInfo;
 import com.bist.zeromq.model.internal.PeerProcessInfo;
 import com.bist.zeromq.model.internal.ProcessInfo;
 import com.bist.zeromq.model.internal.RoutingTable;
-import com.bist.zeromq.model.transfer.Query;
+import com.bist.zeromq.model.transfer.Request;
 import com.bist.zeromq.utils.ConnectionUtils;
 import lombok.Getter;
 import org.zeromq.SocketType;
@@ -17,8 +18,11 @@ import java.util.*;
 public class ZeroPeerRoutingInfo
 {
     private final PeerInfo currentPeerInfo;
+    private static int appCounter=0;
+    //for server app
     private final Map<ProcessInfo, ZMQ.Socket> processSocketMap = new HashMap<>();
     private final Map<PeerInfo, ZMQ.Socket> peerSocketMap = new HashMap<>();
+    //for client app
     private final Map<ProcessInfo, ZMQ.Socket> clientSocketMap = new HashMap<>();
     private RoutingTable routingTable;
 
@@ -26,6 +30,10 @@ public class ZeroPeerRoutingInfo
     public ZeroPeerRoutingInfo(final String name, final String ip, final int port)
     {
         this.currentPeerInfo = new PeerInfo(name, ip, port);
+    }
+
+    public int generateAppId(){
+        return appCounter++;
     }
 
     public void update(RoutingTable routingTable)
@@ -43,7 +51,7 @@ public class ZeroPeerRoutingInfo
             ProcessInfo processInfo =client.getProcessInfo();
            if(!clientSocketMap.containsKey(processInfo)){
                ZMQ.Socket socket = create(processInfo,context);
-               processSocketMap.put(processInfo, socket);
+               clientSocketMap.put(processInfo, socket);
                return Optional.of(socket);
            }
 
@@ -52,12 +60,19 @@ public class ZeroPeerRoutingInfo
 
     }
 
-    public ZMQ.Socket getStreamSocket(Query query, ZContext context)
+    public ZMQ.Socket getStreamSocket(Request request, ZContext context)
     {
-        PeerProcessInfo peerProcessInfo = routingTable.getQueryTable().get(query.getQueryType());
+        MessageType messageType= request.getMessageType();
+        PeerProcessInfo peerProcessInfo =null;
+        if(messageType.isQuery()){
+            peerProcessInfo = routingTable.getQueryTable().get(messageType);
+        }else if(messageType.isTrt()){
+            peerProcessInfo = routingTable.getTrtTable().get(messageType);
+        }
+
         if (peerProcessInfo == null)
         {
-            throw new IllegalStateException("No route found for " + query.getQueryType());
+            throw new IllegalStateException("No route found for " + messageType.getCode());
         }
         //route to process
         if (peerProcessInfo.getPeerInfo().equals(currentPeerInfo))

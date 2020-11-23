@@ -1,12 +1,8 @@
 package com.bist.zeromq.model.internal;
 
 import com.bist.zeromq.config.AppType;
-import com.bist.zeromq.config.QueryType;
-import com.bist.zeromq.config.TrtType;
-import com.bist.zeromq.model.transfer.Query;
+import com.bist.zeromq.config.MessageType;
 import lombok.Data;
-import org.zeromq.ZContext;
-import org.zeromq.ZMQ;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,8 +15,8 @@ public class RoutingTable implements IInternalInfo
     //clients
    private List<PeerProcessInfo> clientProcesses = new ArrayList<>();
    //servers data
-   private Map<QueryType, PeerProcessInfo> queryTable = new HashMap<>();
-   private Map<TrtType, PeerProcessInfo> trtTable = new HashMap<>();
+   private Map<MessageType, PeerProcessInfo> queryTable = new HashMap<>();
+   private Map<MessageType, PeerProcessInfo> trtTable = new HashMap<>();
 
     public void addRoute(PeerProcessInfo p)
     {
@@ -35,16 +31,22 @@ public class RoutingTable implements IInternalInfo
             {
                 if (processInfo.getQueryTypes() != null)
                 {
-                    for (QueryType queryType : processInfo.getQueryTypes())
+                    for (MessageType queryType : processInfo.getQueryTypes())
                     {
-                        queryTable.put(queryType, p);
+                        if(queryType.isQuery()){
+                            queryTable.put(queryType, p);
+                        }
+
                     }
                 }
                 if (processInfo.getTrtTypes() != null)
                 {
-                    for (TrtType trtType : processInfo.getTrtTypes())
+                    for (MessageType trtType : processInfo.getTrtTypes())
                     {
-                        trtTable.put(trtType, p);
+                        if(trtType.isTrt()){
+                            trtTable.put(trtType, p);
+                        }
+
                     }
                 }
             }
@@ -66,7 +68,7 @@ public class RoutingTable implements IInternalInfo
         StringBuilder builder = new StringBuilder();
         builder.append("\n****Table Content****\n");
 
-        for (Map.Entry<QueryType, PeerProcessInfo> q : queryTable.entrySet()
+        for (Map.Entry<MessageType, PeerProcessInfo> q : queryTable.entrySet()
         )
         {
             builder.append("Query Type:" + q.getKey() +

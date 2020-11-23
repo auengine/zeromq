@@ -2,9 +2,11 @@ package com.bist.zeromq;
 
 import com.bist.zeromq.config.*;
 import com.bist.zeromq.model.internal.ProcessInfo;
-import com.bist.zeromq.service.AnswerService;
+import com.bist.zeromq.model.transfer.Request;
 import com.bist.zeromq.service.CommandService;
-import com.bist.zeromq.service.QueryService;
+import com.bist.zeromq.service.RequestService;
+import com.bist.zeromq.statistics.LatencyStatistics;
+import com.bist.zeromq.statistics.Statistics;
 import com.bist.zeromq.utils.ConnectionUtils;
 import com.bist.zeromq.utils.GeneralUtils;
 import com.bist.zeromq.utils.ReportWriter;
@@ -12,6 +14,9 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -19,27 +24,50 @@ import java.util.UUID;
 public class ClientProcess
 {
     private static final int instanceId = Configuration.INSTANCE_ID;
-    private static final String ipcOut = "out_" + instanceId;  //ClientProcess.class.getSimpleName();.
-    private static final int peerCommandPort = 20124;// Configuration.SERVER_COMMAND_PORT;
+    private static final String ipcOut = "ipc_c_out_" + instanceId;  //ClientProcess.class.getSimpleName();.
+    private static final int peerCommandPort =  Configuration.SERVER_COMMAND_PORT;
+    private static final String instanceName = UUID.randomUUID().toString();
+    private static final int messageTypeOpt = Configuration.MESSAGE_TYPE_ITEM;
+    private static final int messageSizeOpt = Configuration.MESSAGE_SIZE_ITEM;
     private static ReportWriter reportWriter;
     private static ZContext context;
-    private static final String instanceName = UUID.randomUUID().toString();
-    private static final MessageSize messageSize = MessageSize.MB30;
-    private static final QueryType queryType = QueryType.TYPE0 ;
     private static ZMQ.Socket commandSocket;
     private static ZMQ.Socket ipcOutSocket;
+    private static final Statistics statistics = new LatencyStatistics(10);
+    private static final int numberOfMessages = Configuration.MESSAGE_COUNT;
+    private static final int numberOfWarmUpMessages = 1000;
+    private static final byte[] answerBuffer = ByteBuffer.allocate(MessageSize.MB30.getSize()).array();
+
+    private static final int totalClientCount = Configuration.TOTAL_CLIENT_COUNT;
+    private static final int totalMessageTypeCount = Configuration.TOTAL_MESSAGE_TYPE_COUNT;
+
 
     public static void main(String[] args)
     {
         try
         {
-            List<QueryType> queryTypeList = Arrays.asList();
-            List<TrtType> trtTypeList = Arrays.asList();
+             List<MessageType> queryTypeList = Arrays.asList();
+             List<MessageType> trtTypeList = Arrays.asList();
+             MessageType messageType = MessageType.getByCode(messageTypeOpt);
+             MessageSize messageSize = MessageSize.getByCode(messageSizeOpt);
+             //no need to segmenting
+             MessageSize segmentSize = messageSize;
+             int segmentCount = messageSize.getSize() / segmentSize.getSize();
 
-            reportWriter = GeneralUtils.createReportFile(ClientProcess.class.getSimpleName());
+            reportWriter = GeneralUtils.createReportFile(ClientProcess.class.getSimpleName()+ instanceName);
             reportWriter.printf("Starting %s with name %s\n", ClientProcess.class.getSimpleName(), instanceName);
             reportWriter.printf("Peer Port: %d\n", peerCommandPort);
+            String staticticPath = GeneralUtils.createBasePath(messageType,messageSize,totalClientCount,totalMessageTypeCount,instanceId);
+
             context = new ZContext();
+            //exception handler
+            Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler()
+            {
+                public void uncaughtException(final Thread t, final Throwable e)
+                {
+                    reportWriter.println("Unknown exception. ");
+                }
+            });
 
             ProcessInfo processInfo = new ProcessInfo(instanceName, AppType.CLIENT, ipcOut, queryTypeList, trtTypeList);
 
@@ -58,18 +86,46 @@ public class ClientProcess
             ipcOutSocket = context.createSocket(SocketType.REQ);
             ipcOutSocket.connect(ConnectionUtils.ipc(ipcOut));
 
+            Request request = RequestService.createOrGet(messageType, messageSize);
+            byte[] requestByteForm = request.encodedForm();
 
             while (!Thread.currentThread().isInterrupted())
             {
+                //warm up
+                warmUp(requestByteForm,messageSize);
+
+                Thread.sleep(1000);
+
                 // Block until a message is received
-                reportWriter.println("Calling send ");
-                ipcOutSocket.send(QueryService.createQuery(queryType,messageSize).encodedForm());
-                byte[] reply = ipcOutSocket.recv(0);
-                String answer = new String(reply, ZMQ.CHARSET);
+                reportWriter.println("Starting sending queries send ");
+
+                for (int i = 0; i < numberOfMessages; i++)
+                {
+                    long beginTime = System.nanoTime();
+                    for (int j = 0; j < segmentCount; j++)
+                    {
+                        ipcOutSocket.send(requestByteForm,0,requestByteForm.length,0);
+                        int answerSize = ipcOutSocket.recv(answerBuffer, 0, segmentSize.getSize(), 0);
+                        if (answerSize != segmentSize.getSize())
+                        {
+                            reportWriter.errorf("Segment mismatch %d expected %d \n", answerSize, segmentSize
+                                .getSize());
+                        }
+                        reportWriter.printf("Segment response time %d \n", System.nanoTime() - beginTime);
+                    }
+                    long executionTime = System.nanoTime() - beginTime;
+                    statistics.transactionCompleted(executionTime);
+                }
+
+                // statistics.getSummary();
+                 statistics.dumpRawData(staticticPath);
+                // byte[] reply = ipcOutSocket.recv(0);
+                // String answer = new String(reply, ZMQ.CHARSET);
                 // Print the message
                 //reportWriter.println("Received: [" + message + "]");
 
-                reportWriter.printf("Message acknowledged: %s \n",answer);
+
+                break;
             }
         }
         catch (Exception e)
@@ -97,5 +153,24 @@ public class ClientProcess
         }
 
     }
+
+
+    private static void warmUp(byte[] request, MessageSize messageSize) throws IOException
+    {
+
+
+        for (int i = 0; i < numberOfWarmUpMessages; i++)
+        {
+            ipcOutSocket.send(request,0,request.length,0);
+            int answerSize = ipcOutSocket.recv(answerBuffer, 0, messageSize.getSize(), 0);
+            if (answerSize != messageSize.getSize())
+            {
+                reportWriter.errorf("Segment mismatch %d expected %d \n",
+                    answerSize, messageSize.getSize());
+            }
+
+        }
+    }
 }
+
 

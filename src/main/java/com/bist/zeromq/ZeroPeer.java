@@ -16,8 +16,8 @@ import java.util.UUID;
 
 public class ZeroPeer
 {
-    private static  int serverCommandPort = 20124;// Configuration.SERVER_COMMAND_PORT;
-    private static  int serverStreamPort =20125;// Configuration.SERVER_STREAM_PORT;
+    private static  int serverCommandPort =  Configuration.SERVER_COMMAND_PORT;
+    private static  int serverStreamPort = Configuration.SERVER_STREAM_PORT;
     private static final String serverIp = Configuration.SERVER_IP;
     private static final int publisherSubscribePort = Configuration.PUBLISHER_SUBSCRIBE_PORT;
     private static final String publisherIp = Configuration.PUBLISHER_IP;

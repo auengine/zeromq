@@ -1,8 +1,7 @@
 package com.bist.zeromq.model.internal;
 
 import com.bist.zeromq.config.AppType;
-import com.bist.zeromq.config.QueryType;
-import com.bist.zeromq.config.TrtType;
+import com.bist.zeromq.config.MessageType;
 import lombok.Data;
 
 import java.util.List;
@@ -14,11 +13,11 @@ public class ProcessInfo  implements IInternalInfo
     private String name;
     private AppType type;
     private String ipcPath;
-    private List<QueryType> queryTypes;
-    private List<TrtType> trtTypes;
+    private List<MessageType> queryTypes;
+    private List<MessageType> trtTypes;
 
-    public ProcessInfo(final String name,AppType type, final String ipcPath, List<QueryType> types,
-        List<TrtType> trtTypes)
+    public ProcessInfo(final String name,AppType type, final String ipcPath, List<MessageType> types,
+        List<MessageType> trtTypes)
     {
         this.name = name;
         this.ipcPath = ipcPath;

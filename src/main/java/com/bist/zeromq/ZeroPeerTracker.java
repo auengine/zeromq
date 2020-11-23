@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class ZeroPeerTracker
 {
-    private static final int serverCommandPort = Configuration.SERVER_COMMAND_PORT;
+    private static final int serverCommandPort = Configuration.PUBLISHER_COMMAND_PORT;
     private static final int publisherPort = Configuration.PUBLISHER_SUBSCRIBE_PORT;
     private static final String serverIp = Configuration.SERVER_IP;
     private static final String inProcLabel1 = "inproc_t_command_1";

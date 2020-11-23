@@ -3,7 +3,7 @@
 ##Usage : ./server {serverIp} [streamId] [mediaTypeName] [exclusive] [embedded]
 ##Usage : ./server 127.0.0.1 123 normalMedia true true
 
-VERSION=$(cat ../version.txt)
+VERSION=$(cat ../../version.txt)
 
 
 "${JAVA_HOME}"/bin/java \
@@ -15,5 +15,5 @@ VERSION=$(cat ../version.txt)
     -XX:+UseParallelOldGC \
     -XX:InitialHeapSize=128m \
     -XX:+PrintGC \
-    -Dzeromq.config.server.port=20103 \
-    ${JVM_OPTS} com.bist.zeromq.example.EchoServer
+    -Dzeromq.config.server.port=20104 \
+    ${JVM_OPTS} com.bist.zeromq.example.MaxMessageServer

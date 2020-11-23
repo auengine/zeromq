@@ -3,26 +3,25 @@ package com.bist.zeromq.config;
 import java.util.ArrayList;
 import java.util.List;
 
-public enum QueryType
+public enum MessageKind
 {
-    TYPE0(0),
-    TYPE1(1),
-    TYPE2(2),
+    QUERY(0),
+    TRANSACTION(1),
     TYPE_UNKNOWN(-1);
 
     private final int code;
 
-    QueryType(int code)
+    MessageKind(int code)
     {
         this.code = code;
     }
 
-    public static List<QueryType> asEnum(List<Integer> list)
+    public static List<MessageKind> asEnum(List<Integer> list)
     {
-        List<QueryType> result = new ArrayList<>();
+        List<MessageKind> result = new ArrayList<>();
         for (Integer i : list)
         {
-            QueryType q = getByCode(i);
+            MessageKind q = getByCode(i);
             if (q != TYPE_UNKNOWN)
             {
                 result.add(q);
@@ -32,9 +31,9 @@ public enum QueryType
         return result;
     }
 
-    public static QueryType getByCode(int code)
+    public static MessageKind getByCode(int code)
     {
-        for (QueryType type : values())
+        for (MessageKind type : values())
         {
             if (type.getCode() == code)
             {

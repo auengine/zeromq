@@ -3,7 +3,7 @@ package com.bist.zeromq.handler;
 import com.bist.zeromq.config.CommandCode;
 import com.bist.zeromq.model.ZeroPeerRoutingInfo;
 import com.bist.zeromq.model.transfer.Command;
-import com.bist.zeromq.model.transfer.Query;
+import com.bist.zeromq.model.transfer.Request;
 import com.bist.zeromq.service.AnswerService;
 import com.bist.zeromq.service.CommandService;
 import com.bist.zeromq.utils.ConnectionUtils;
@@ -136,15 +136,15 @@ public class PeerStreamHandler extends Thread
 
     public void handleStream(byte[] stream, ZMQ.Socket out)
     {
-        Query query = Query.decodedForm(stream);
-        reportWriter.println("Decoded query is" + query.toString());
-        ZMQ.Socket socket = zeroPeerRoutingInfo.getStreamSocket(query, context);
-        reportWriter.println("Directing stream to destination.");
+        Request request = Request.decodedForm(stream);
+        reportWriter.println("Decoded request is:" + request.toString());
+        ZMQ.Socket socket = zeroPeerRoutingInfo.getStreamSocket(request, context);
+        reportWriter.println("Directing stream to destination!");
         socket.send(stream);
         byte[] reply = socket.recv();
-        reportWriter.println("Directing stream to answered.");
+        reportWriter.println("Directing stream requester!");
         out.send(reply);
-        reportWriter.println("Stream directed to main thread");
+        reportWriter.println("Stream answer returned!");
 
 
     }
