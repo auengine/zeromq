@@ -6,15 +6,16 @@
 VERSION=$(cat ../version.txt)
 
 
-"${JAVA_HOME}"/bin/java \
+     LD_PRELOAD=libvma.so VMA_IGMP=0 VMA_SELECT_POLL=-1 "${JAVA_HOME}"/bin/java \
     -cp ../target/zeromq-${VERSION}-jar-with-dependencies.jar \
     -XX:+UnlockExperimentalVMOptions \
     -XX:+TrustFinalNonStaticFields \
     -XX:+UnlockDiagnosticVMOptions \
     -XX:GuaranteedSafepointInterval=300000 \
-    -Xmx2g -Xms2g \
-    -XX:+UseParallelOldGC \
+     -XX:+UseParallelOldGC \
+    -Xmx128m -Xms128m \
     -XX:+PrintGC \
+    -XX:NewRatio=1
     -Dzeromq.config.server.port=$1 \
     -Dzeromq.config.publisher.port=$2 \
     -Dzeromq.config.server.ip=$3 \
