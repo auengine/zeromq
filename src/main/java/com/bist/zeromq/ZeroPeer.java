@@ -51,11 +51,11 @@ public class ZeroPeer
 
             // Socket for commands
             commandSocket = context.createSocket(SocketType.REP);
-            commandSocket.bind(ConnectionUtils.tcp( serverCommandPort));
+            commandSocket.bind(ConnectionUtils.tcp(serverCommandPort));
 
             //Socket for message stream
             streamSocket = context.createSocket(SocketType.REP);
-            streamSocket.bind(ConnectionUtils.tcp(serverStreamPort));
+            streamSocket.bind(ConnectionUtils.tcp(serverIp,serverStreamPort));
 
              commandHandler = new PeerCommandHandler(context, publisherIp, publisherCommandPort,
                 publisherSubscribePort, inProcCommandPath,inProcStreamThreadPath,

@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+##Usage : ./clientProcess [peerCommandPort] [instanceId] [messageType] [messageSize] [messageCount]
+##                        [totalClientCount] [totalMessageTypeCount]
+##Usage : ./clientProcess  20124 1 1|2|4|5 0|1|2.. 1000 1 1
+
+VERSION=$(cat ../version.txt)
+
+
+    "${JAVA_HOME}"/bin/java \
+    -cp ../target/zeromq-${VERSION}-jar-with-dependencies.jar \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:+TrustFinalNonStaticFields \
+    -XX:+UnlockDiagnosticVMOptions \
+    -XX:GuaranteedSafepointInterval=300000 \
+    -XX:+UseParallelOldGC \
+    -Xmx12g -Xms12g \
+    -XX:+PrintGC \
+    -Dzeromq.config.server.port=$1 \
+    -Dzeromq.config.instance.id=$2 \
+    -Dzeromq.config.message.item=$3 \
+    -Dzeromq.config.message.size=$4 \
+    -Dzeromq.config.message.count=$5 \
+    -Dzeromq.config.test.client.total.count=$6 \
+    -Dzeromq.config.test.message.type.count=$7 \
+     ${JVM_OPTS} com.bist.zeromq.ClientProcess

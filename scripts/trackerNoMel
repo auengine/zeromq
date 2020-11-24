@@ -6,7 +6,7 @@
 VERSION=$(cat ../version.txt)
 
 
-     LD_PRELOAD=libvma.so VMA_IGMP=0 VMA_SELECT_POLL=-1 "${JAVA_HOME}"/bin/java \
+     "${JAVA_HOME}"/bin/java \
     -cp ../target/zeromq-${VERSION}-jar-with-dependencies.jar \
     -XX:+UnlockExperimentalVMOptions \
     -XX:+TrustFinalNonStaticFields \

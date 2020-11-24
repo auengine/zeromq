@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+##Usage : ./serverProcess [peerCommandPort] [instanceId] [QueryList] [TrtList]
+##Usage : ./serverProcess  20123 1 1|2 4|5
+
+VERSION=$(cat ../version.txt)
+
+
+     "${JAVA_HOME}"/bin/java \
+    -cp ../target/zeromq-${VERSION}-jar-with-dependencies.jar \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:+TrustFinalNonStaticFields \
+    -XX:+UnlockDiagnosticVMOptions \
+    -XX:GuaranteedSafepointInterval=300000 \
+    -XX:+UseParallelOldGC \
+    -Xmx12g -Xms12g \
+    -XX:+PrintGC \
+    -Dzeromq.config.server.port=$1 \
+    -Dzeromq.config.instance.id=$2 \
+    -Dzeromq.config.query.list=$3 \
+    -Dzeromq.config.trt.list=$4 \
+     ${JVM_OPTS} com.bist.zeromq.ServerProcess

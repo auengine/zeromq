@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+##Usage : ./peer [serverCommandPort] [serverStreamPort] [serverIp] [publisherSubscribePort] [publisherIp] [publisherCommandPort]
+##Usage : ./peer  20124 20125 127.0.0.1 20321 127.0.0.1 20123
+
+VERSION=$(cat ../version.txt)
+
+
+    "${JAVA_HOME}"/bin/java \
+    -cp ../target/zeromq-${VERSION}-jar-with-dependencies.jar \
+    -XX:+UnlockExperimentalVMOptions \
+    -XX:+TrustFinalNonStaticFields \
+    -XX:+UnlockDiagnosticVMOptions \
+    -XX:GuaranteedSafepointInterval=300000 \
+    -XX:+UseParallelOldGC \
+    -Xmx20g -Xms20g \
+    -XX:+PrintGC \
+    -Dzeromq.config.server.port=$1 \
+    -Dzeromq.config.server.stream.port=$2 \
+    -Dzeromq.config.server.ip=$3 \
+    -Dzeromq.config.publisher.port=$4 \
+    -Dzeromq.config.publisher.ip=$5 \
+    -Dzeromq.config.publisher.server.port=$6 \
+    ${JVM_OPTS} com.bist.zeromq.ZeroPeer
+

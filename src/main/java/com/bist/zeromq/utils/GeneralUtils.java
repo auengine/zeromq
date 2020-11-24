@@ -39,7 +39,7 @@ public class GeneralUtils
             if(messageType.isQuery()){
                 folder += "-"+ size(messageSize,totalClientCount);
             }
-            String file = "ZERO-"+ messageType.name() +"-" + size(messageSize,1) + "-1111-"+ "L" + instance+ ".dump";
+            String file = "ZERO-"+ name(messageType) +"-" + size(messageSize,1) + "-1111-"+ "L" + instance+ ".dump";
 
             String directoryName = tmp + "/" + folder;
             File directory = new File(directoryName);
@@ -66,6 +66,18 @@ public class GeneralUtils
         }else{
             double n= bytes/kb;
             return  f.format(n)+"kb".replace(',','.');
+        }
+
+    }
+
+    private static String name(MessageType type){
+
+        if(type.isQuery()){
+            String r="Q";
+            return r + (type== type.QUERY_TYPE1 ? "1" :"2");
+        }else{
+            String r="T";
+            return r + (type== type.TRT_TYPE1 ? "1" :"2");
         }
 
     }
