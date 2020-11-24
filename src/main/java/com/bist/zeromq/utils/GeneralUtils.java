@@ -25,7 +25,7 @@ public class GeneralUtils
 
     public static  String createBasePath(MessageType messageType, MessageSize messageSize,int totalClientCount,int totalMessageTypeCount,int instance) throws FileNotFoundException
     {
-        final SimpleDateFormat simpleDayFormat = new SimpleDateFormat("yyyy_MM_dd");
+        final SimpleDateFormat simpleDayMMFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm");
         final SimpleDateFormat simpleDateTimeFormat = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss_SSS");
         String tmp="";
         if(isWindows()){
@@ -34,12 +34,11 @@ public class GeneralUtils
 
              return tmp + "\\" +  String.format(file, simpleDateTimeFormat.format(new Date()));
         }else{
-           tmp= "/tmp/zeromq/";
+           tmp=  String.format("/tmp/zeromq/%s", simpleDayMMFormat.format(new Date()));
             String folder="ZERO-"+ (messageType.isQuery() ? "Q-":"T-" ) +totalClientCount +"-" + totalMessageTypeCount ;
             if(messageType.isQuery()){
                 folder += "-"+ size(messageSize,totalClientCount);
             }
-
             String file = "ZERO-"+ messageType.name() +"-" + size(messageSize,1) + "-1111-"+ "L" + instance+ ".dump";
 
             String directoryName = tmp + "/" + folder;
