@@ -3,6 +3,7 @@ package com.bist.zeromq.utils;
 import com.bist.zeromq.config.MessageSize;
 import com.bist.zeromq.config.MessageType;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -41,7 +42,13 @@ public class GeneralUtils
 
             String file = "ZERO-"+ messageType.name() +"-" + size(messageSize,1) + "-1111-"+ "L" + instance+ ".dump";
 
-            return  tmp + "/" + folder +"/" + file;
+            String directoryName = tmp + "/" + folder;
+            File directory = new File(directoryName);
+            if (! directory.exists()){
+                directory.mkdirs();
+            }
+
+            return  directoryName +"/" + file;
 
         }
 

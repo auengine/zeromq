@@ -26,7 +26,7 @@ public class ZeroPeer
     private static final String inProcStreamPath = "inproc_p_stream_1";
     private static final String inProcStreamThreadPath = "inproc_p_stream_2";
     private static final String instanceName = UUID.randomUUID().toString();
-    private static final ZeroPeerRoutingInfo zeroPeerRoutingInfo = new ZeroPeerRoutingInfo(instanceName,serverIp,serverCommandPort);
+    private static final ZeroPeerRoutingInfo zeroPeerRoutingInfo = new ZeroPeerRoutingInfo(instanceName,serverIp,serverCommandPort,serverStreamPort);
     private static ReportWriter reportWriter;
     private static ZContext context;
     private static ZMQ.Socket commandSocket;
@@ -90,7 +90,7 @@ public class ZeroPeer
 
                 // Block until a message is received
                 poller.poll();
-                reportWriter.println("Items pooled in peer!");
+               // reportWriter.println("Items pooled in peer!");
                 //server socket
                 if (poller.pollin(0))
                 {
@@ -106,12 +106,12 @@ public class ZeroPeer
                 if (poller.pollin(1))
                 {
                     byte[] message = streamSocket.recv(0);
-                    reportWriter.println("Stream socket received");
+                  //  reportWriter.println("Stream socket received");
                     streamInprocSocket.send(message);
                     //wait for thread for ok!
                     byte[] reply= streamInprocSocket.recv();
                     streamSocket.send(reply);
-                    reportWriter.println("Stream directed to stream socket.!");
+              //      reportWriter.println("Stream directed to stream socket.!");
                 }
             }
         }

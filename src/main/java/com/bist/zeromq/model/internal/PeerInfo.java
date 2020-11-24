@@ -10,13 +10,15 @@ public class PeerInfo implements IInternalInfo
 {
     private String name;
     private String ip;
-    private int port;
+    private int commandPort;
+    private int streamPort;
 
-    public PeerInfo(final String name, final String ip, final int port)
+    public PeerInfo(final String name, final String ip, final int port, final int stport)
     {
         this.name = name;
         this.ip = ip;
-        this.port = port;
+        this.commandPort = port;
+        this.streamPort = stport;
     }
 
     public boolean equals(final Object o)
@@ -30,19 +32,19 @@ public class PeerInfo implements IInternalInfo
             return false;
         }
         final PeerInfo peerInfo = (PeerInfo)o;
-        return port == peerInfo.port &&
-            name.equals(peerInfo.name) &&
+        return commandPort == peerInfo.commandPort && streamPort == peerInfo.streamPort &&
+        name.equals(peerInfo.name) &&
             ip.equals(peerInfo.ip);
     }
 
     public int hashCode()
     {
-        return Objects.hash(name, ip, port);
+        return Objects.hash(name, ip, commandPort,streamPort);
     }
 
     public String printStr()
     {
-        return name + "---> " + ip + ":" + port;
+        return name + "---> " + ip + ":" + commandPort + "|" + streamPort;
 
     }
 

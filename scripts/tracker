@@ -12,7 +12,7 @@ VERSION=$(cat ../version.txt)
     -XX:+TrustFinalNonStaticFields \
     -XX:+UnlockDiagnosticVMOptions \
     -XX:GuaranteedSafepointInterval=300000 \
-    -XX:InitialHeapSize=128m \
+    -Xmx2g -Xms2g \
     -XX:+UseParallelOldGC \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=$1 \

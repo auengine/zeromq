@@ -60,7 +60,7 @@ public class PeerStreamHandler extends Thread
             inProcSocket.send(AnswerService.getOKMessage());
 
             //  Initialize poll set
-            poller = context.createPoller(10);
+            poller = context.createPoller(17);
             poller.register(inProcSocket, ZMQ.Poller.POLLIN);
             poller.register(inProcThreadSocket, ZMQ.Poller.POLLIN);
 
@@ -71,14 +71,14 @@ public class PeerStreamHandler extends Thread
             {
                 // Block until a message is received
                 poller.poll();
-                reportWriter.println("Items pooled in stream thread!");
+            //    reportWriter.println("Items pooled in stream thread!");
                 //pear stream socket
                 if (poller.pollin(0))
                 {
-                    reportWriter.println("Handling stream reguest for peer!");
+               //     reportWriter.println("Handling stream reguest for peer!");
                     int size = inProcSocket.recv(answerBuffer,0,answerBuffer.length,0);
                   //  inProcSocket.send(AnswerService.getOKMessage());
-                    handleStream(answerBuffer,inProcSocket);
+                    handleStream(answerBuffer,size,inProcSocket);
 
                 }
                 //command thread
@@ -103,13 +103,13 @@ public class PeerStreamHandler extends Thread
                 }
                 for (int i = 2; i <= pCount; i++)
                 {
-                    reportWriter.println("Checking  client streams!");
+                //    reportWriter.println("Checking  client streams!");
                     if (poller.pollin(i))
                     {
                         ZMQ.Socket client = poller.getSocket(i);
                         int size = client.recv(answerBuffer,0,answerBuffer.length,0);
-                        reportWriter.printf("Handling stream request for poller index %d!\n", i-1);
-                        handleStream(answerBuffer,client);
+                 //       reportWriter.printf("Handling stream request for poller index %d!\n", i);
+                        handleStream(answerBuffer,size,client);
 
 
                     }
@@ -139,17 +139,17 @@ public class PeerStreamHandler extends Thread
         }
     }
 
-    public void handleStream(byte[] stream, ZMQ.Socket out)
+    public void handleStream(byte[] stream,int streamSize, ZMQ.Socket out)
     {
         Request request = Request.decodedForm(stream);
-        reportWriter.println("Decoded request is:" + request.toString());
+       // reportWriter.println("Decoded request is:" + request.toString());
         ZMQ.Socket socket = zeroPeerRoutingInfo.getStreamSocket(request, context);
-        reportWriter.println("Directing stream to destination!");
-        socket.send(stream);
+      //  reportWriter.println("Directing stream to destination!");
+        socket.send(stream,0,streamSize,0);
         int answerSize = socket.recv(answerBuffer,0,answerBuffer.length,0 );
-        reportWriter.println("Directing stream requester!");
+      //  reportWriter.println("Directing stream requester!");
         out.send(answerBuffer,0,answerSize,0);
-        reportWriter.println("Stream answer returned!");
+     //   reportWriter.println("Stream answer returned!");
 
 
     }

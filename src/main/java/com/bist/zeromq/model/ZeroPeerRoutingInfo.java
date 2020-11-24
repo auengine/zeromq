@@ -27,9 +27,9 @@ public class ZeroPeerRoutingInfo
     private RoutingTable routingTable;
 
 
-    public ZeroPeerRoutingInfo(final String name, final String ip, final int port)
+    public ZeroPeerRoutingInfo(final String name, final String ip, final int port,final int streamPort)
     {
-        this.currentPeerInfo = new PeerInfo(name, ip, port);
+        this.currentPeerInfo = new PeerInfo(name, ip, port,streamPort);
     }
 
     public int generateAppId(){
@@ -123,7 +123,7 @@ public class ZeroPeerRoutingInfo
     private ZMQ.Socket create(PeerInfo peerInfo, ZContext context)
     {
         ZMQ.Socket socket = context.createSocket(SocketType.REQ);
-        socket.connect(ConnectionUtils.tcp(peerInfo.getIp(),peerInfo.getPort()));
+        socket.connect(ConnectionUtils.tcp(peerInfo.getIp(),peerInfo.getStreamPort()));
         return socket;
     }
 

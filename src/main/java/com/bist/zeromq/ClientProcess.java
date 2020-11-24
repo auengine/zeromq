@@ -111,14 +111,15 @@ public class ClientProcess
                             reportWriter.printf("Segment mismatch %d expected %d \n", answerSize, segmentSize
                                 .getSize());
                         }
-                        reportWriter.printf("Segment response time %d \n", System.nanoTime() - beginTime);
+                     //   reportWriter.printf("Segment response time %d \n", System.nanoTime() - beginTime);
                     }
                     long executionTime = System.nanoTime() - beginTime;
-                    reportWriter.printf("Request response time %d \n", executionTime);
+                    //reportWriter.printf("Request response time %d \n", executionTime);
                     statistics.transactionCompleted(executionTime);
                 }
 
                 // statistics.getSummary();
+                 reportWriter.printf("Output to file: %s \n", staticticPath);
                  statistics.dumpRawData(staticticPath);
                 // byte[] reply = ipcOutSocket.recv(0);
                 // String answer = new String(reply, ZMQ.CHARSET);

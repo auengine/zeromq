@@ -68,12 +68,12 @@ public class ServerProcess
             while (!Thread.currentThread().isInterrupted())
             {
                 // Block until a message is received
-                reportWriter.println("Waiting for request!");
+               // reportWriter.println("Waiting for request!");
                 int querySize = ipcInSocket.recv(queryAndTrtBuffer,0,Request.getByteSize(),0 );
                 Request request=Request.decodedForm(queryAndTrtBuffer);
-                reportWriter.printf("Request is %s answer size %s!\n",request.toString(),request.getRequestedAnswerSize().getSize());
+             //   reportWriter.printf("Request is %s answer size %s!\n",request.toString(),request.getRequestedAnswerSize().getSize());
                 ipcInSocket.send(AnswerService.getAnswer(),0,request.getRequestedAnswerSize().getSize(), 0);
-                reportWriter.println("Requested answered!");
+               // reportWriter.println("Requested answered!");
             }
         }
         catch (Exception e)

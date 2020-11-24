@@ -2,7 +2,7 @@
 
 ##Usage : ./clientProcess [peerCommandPort] [instanceId] [messageType] [messageSize] [messageCount]
 ##                        [totalClientCount] [totalMessageTypeCount]
-##Usage : ./clientProcess  20123 1 0|1|2|3.. 1|2 1 1
+##Usage : ./clientProcess  20124 1 1|2|4|5 0|1|2.. 1000 1 1
 
 VERSION=$(cat ../version.txt)
 
@@ -14,7 +14,7 @@ VERSION=$(cat ../version.txt)
     -XX:+UnlockDiagnosticVMOptions \
     -XX:GuaranteedSafepointInterval=300000 \
     -XX:+UseParallelOldGC \
-    -XX:InitialHeapSize=128m \
+    -Xmx2g -Xms2g \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=$1 \
     -Dzeromq.config.instance.id=$2 \
