@@ -64,8 +64,10 @@ public class MaxMessageClient
                    reportWriter.println("Query failed i: " + i);
                }
                 i++;
+                socket.recv(0);
+               /*
                 // Block until a message is received
-         /*        ZMsg a=ZMsg.recvMsg(socket,0);
+                ZMsg a=ZMsg.recvMsg(socket,0);
                 if( a.contentSize() != MaxMessageServer.MAX_ANW_BUFFER){
                     reportWriter.println("Readed message not fit: " + a.contentSize());
                 }
@@ -75,9 +77,11 @@ public class MaxMessageClient
                     reportWriter.println("Incomplete answer! " );
                 }
                 zFrame.destroy();
-                a.destroy(); */
+                a.destroy();
+                */
 
 
+             /*
                int readSize= socket.recv(answer,0,answer.length, 0);
                 if( readSize != MaxMessageServer.MAX_ANW_BUFFER){
                     reportWriter.println("Readed message not fit: " + readSize);
@@ -86,7 +90,7 @@ public class MaxMessageClient
                     && answer[answer.length-1] != (byte) MaxMessageServer.aEnd ){
                     reportWriter.println("Incomplete answer!" );
                 }
-
+             */
              //   reportWriter.println("Readed message!");
 
             }

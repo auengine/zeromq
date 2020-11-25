@@ -28,6 +28,9 @@ public class Configuration
     public static final int MESSAGE_COUNT;
     public static final int TOTAL_CLIENT_COUNT;
     public static final int TOTAL_MESSAGE_TYPE_COUNT;
+    public static final String WAIT_TIME_TILL;
+
+
 
 
 
@@ -53,6 +56,7 @@ public class Configuration
     private static final String MESSAGE_COUNT_PROP = "zeromq.config.message.count";
     private static final String TOTAL_CLIENT_COUNT_PROP = "zeromq.config.test.client.total.count";
     private static final String TOTAL_MESSAGE_TYPE_COUNT_PROP = "zeromq.config.test.message.type.count";
+    private static final String WAIT_TIME_TILL_PROB = "zeromq.config.test.wait.time";
 
     static
     {
@@ -75,6 +79,8 @@ public class Configuration
         TOTAL_MESSAGE_TYPE_COUNT = Integer.getInteger(TOTAL_MESSAGE_TYPE_COUNT_PROP,1);
         MESSAGE_TYPE_ITEM = Integer.getInteger(MESSAGE_TYPE_ITEM_PROP, 1);
         MESSAGE_SIZE_ITEM = Integer.getInteger(MESSAGE_SIZE_ITEM_PROP, 1);
+        WAIT_TIME_TILL = System.getProperty(WAIT_TIME_TILL_PROB, "");
+
    }
 
     public static List<Integer> getSortedProperties(final String input)

@@ -13,7 +13,7 @@ import java.util.UUID;
 public class MaxMessageServer
 {
     private static final int serverPort =20104;
-    public static int MAX_ANW_BUFFER=1024*1024*50;
+    public static int MAX_ANW_BUFFER=1024*1024*30;
     public static int MAX_Q_BUFFER=1024*1024*1;
 
     private static ReportWriter reportWriter;
@@ -53,11 +53,11 @@ public class MaxMessageServer
             // Socket to talk to clients
             ZMQ.Socket socket = context.createSocket(SocketType.REP);
             socket.bind(ConnectionUtils.tcp(serverPort));
+            // Block until a message is received
+            reportWriter.println("Calling recv ");
 
             while (!Thread.currentThread().isInterrupted())
             {
-                // Block until a message is received
-                reportWriter.println("Calling recv ");
 
               //  ZMsg inputMsg= ZMsg.recvMsg(socket,0);
                 // inputMsg.destroy();

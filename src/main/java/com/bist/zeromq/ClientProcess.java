@@ -15,9 +15,10 @@ import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMsg;
 
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +31,7 @@ public class ClientProcess
     private static final String instanceName = UUID.randomUUID().toString();
     private static final int messageTypeOpt = Configuration.MESSAGE_TYPE_ITEM;
     private static final int messageSizeOpt = Configuration.MESSAGE_SIZE_ITEM;
+    private static final String waitTill = Configuration.WAIT_TIME_TILL;
     private static final Statistics statistics = new LatencyStatistics(10);
     private static final int numberOfMessages = Configuration.MESSAGE_COUNT;
     private static final int numberOfWarmUpMessages = 10;
@@ -80,6 +82,7 @@ public class ClientProcess
 
             //  - wait for  reply
             commandSocket.recv(0);
+
             reportWriter.printf("Starting sending on ipc %s\n", ipcOut);
 
             // Socket to talk to local peer process
@@ -91,49 +94,55 @@ public class ClientProcess
             ZMsg zQuery = new ZMsg();
             zQuery.add(requestByteForm);
 
-            while (!Thread.currentThread().isInterrupted())
-            {
-                //warm up
-                warmUp(zQuery, messageSize);
+            //warm up
+            warmUp(zQuery, messageSize);
+            reportWriter.println("Warmed up!");
 
-                Thread.sleep(1000);
 
-                // Block until a message is received
-                reportWriter.println("Starting sending queries send ");
-
-                for (int i = 0; i < numberOfMessages; i++)
-                {
-                    long beginTime = System.nanoTime();
-                    for (int j = 0; j < segmentCount; j++)
-                    {
-                        if (!zQuery.send(ipcOutSocket, false))
-                        {
-                            reportWriter.printf("Send failed %d %d!\n", i, j);
-                            throw new IllegalStateException("Send failed!");
-                        }
-                        //ipcOutSocket.send(requestByteForm,0,requestByteForm.length,0);
-                        int answerSize = ipcOutSocket.recv(answerBuffer, 0, segmentSize.getSize(), 0);
-                        if (answerSize != segmentSize.getSize())
-                        {
-                            reportWriter.printf("Segment mismatch %d expected %d \n", answerSize, segmentSize
-                                .getSize());
-                        }
-                        //   reportWriter.printf("Segment response time %d \n", System.nanoTime() - beginTime);
-                    }
-                    long executionTime = System.nanoTime() - beginTime;
-                    //  reportWriter.printf("Request response time %d \n", executionTime);
-                    statistics.transactionCompleted(executionTime);
-                }
-
-                // statistics.getSummary();
-                reportWriter.printf("Output to file: %s \n", staticticPath);
-                statistics.dumpRawData(staticticPath);
-                // byte[] reply = ipcOutSocket.recv(0);
-                // String answer = new String(reply, ZMQ.CHARSET);
-                // Print the message
-                //reportWriter.println("Received: [" + message + "]");
-                break;
+            if(totalClientCount>1 && !waitTill.isEmpty() && waitTill.contains(":")){
+                reportWriter.printf("Sleeping till %s!",waitTill);
+                 String[] time= waitTill.split(":");
+                 int tillTime= LocalTime.of(Integer.getInteger(time[0]),Integer.getInteger(time[1])).getNano();
+                 int nanoDiff=tillTime-LocalTime.now().getNano();
+                 Thread.sleep(nanoDiff/1000,nanoDiff%1000);
             }
+
+            // Block until a message is received
+            reportWriter.println("Starting sending queries!");
+
+            for (int i = 0; i < numberOfMessages; i++)
+            {
+                long beginTime = System.nanoTime();
+                for (int j = 0; j < segmentCount; j++)
+                {
+                    if (!zQuery.send(ipcOutSocket, false))
+                    {
+                        reportWriter.printf("Send failed %d %d!\n", i, j);
+                        throw new IllegalStateException("Send failed!");
+                    }
+                    //ipcOutSocket.send(requestByteForm,0,requestByteForm.length,0);
+                    int answerSize = ipcOutSocket.recv(answerBuffer, 0, segmentSize.getSize(), 0);
+                    if (answerSize < 0 || answerSize != segmentSize.getSize())
+                    {
+                        reportWriter.printf("Segment mismatch %d expected %d \n", answerSize, segmentSize
+                            .getSize());
+                        throw new IllegalStateException("Send failed!");
+                    }
+                    //   reportWriter.printf("Segment response time %d \n", System.nanoTime() - beginTime);
+                }
+                long executionTime = System.nanoTime() - beginTime;
+                //  reportWriter.printf("Request response time %d \n", executionTime);
+                statistics.transactionCompleted(executionTime);
+            }
+
+            // statistics.getSummary();
+            reportWriter.printf("Output to file: %s \n", staticticPath);
+            statistics.dumpRawData(staticticPath);
+            // byte[] reply = ipcOutSocket.recv(0);
+            // String answer = new String(reply, ZMQ.CHARSET);
+            // Print the message
+            //reportWriter.println("Received: [" + message + "]");
+
         }
         catch (Exception e)
         {
