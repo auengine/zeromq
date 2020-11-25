@@ -13,7 +13,8 @@ VERSION=$(cat ../version.txt)
     -XX:+UnlockDiagnosticVMOptions \
     -XX:GuaranteedSafepointInterval=300000 \
     -XX:+UseParallelOldGC \
-    -Xmx20g -Xms20g \
+    -Xmx2g -Xms2g \
+    -XX:NewRatio=1 \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=$1 \
     -Dzeromq.config.server.stream.port=$2 \

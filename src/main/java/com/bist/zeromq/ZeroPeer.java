@@ -1,6 +1,7 @@
 package com.bist.zeromq;
 
 import com.bist.zeromq.config.Configuration;
+import com.bist.zeromq.config.Constants;
 import com.bist.zeromq.handler.PeerCommandHandler;
 import com.bist.zeromq.handler.PeerStreamHandler;
 import com.bist.zeromq.model.ZeroPeerRoutingInfo;
@@ -12,6 +13,7 @@ import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
 
+import java.nio.ByteBuffer;
 import java.util.UUID;
 
 public class ZeroPeer
@@ -36,7 +38,8 @@ public class ZeroPeer
     private static ZMQ.Poller poller;
     private static Thread commandHandler;
     private static Thread streamHandler;
-
+    private static final byte[] messageBuffer = ByteBuffer.allocate(Constants.MAX_MESSAGE_SIZE).array();
+    private static int answerSize=0;
 
 
     public static void main(String[] args)
@@ -105,12 +108,12 @@ public class ZeroPeer
                 //stream
                 if (poller.pollin(1))
                 {
-                    byte[] message = streamSocket.recv(0);
+                    answerSize = streamSocket.recv(messageBuffer,0,messageBuffer.length,0 );
                   //  reportWriter.println("Stream socket received");
-                    streamInprocSocket.send(message);
+                    streamInprocSocket.send(messageBuffer,0,answerSize,0);
                     //wait for thread for ok!
-                    byte[] reply= streamInprocSocket.recv();
-                    streamSocket.send(reply);
+                    answerSize= streamInprocSocket.recv(messageBuffer,0,messageBuffer.length,0);
+                    streamSocket.send(messageBuffer,0,answerSize,0);
               //      reportWriter.println("Stream directed to stream socket.!");
                 }
             }

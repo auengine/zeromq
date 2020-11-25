@@ -13,7 +13,7 @@ VERSION=$(cat ../../version.txt)
     -XX:+UnlockDiagnosticVMOptions \
     -XX:GuaranteedSafepointInterval=300000 \
     -XX:+UseParallelOldGC \
-    -XX:InitialHeapSize=128m \
+    -Xmx512m -Xms512m \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=20104 \
     ${JVM_OPTS} com.bist.zeromq.example.MaxMessageServer

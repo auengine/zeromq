@@ -28,7 +28,8 @@ public class PeerStreamHandler extends Thread
     private ZMQ.Socket inProcSocket;
     private ZMQ.Socket inProcThreadSocket;
     private ZMQ.Poller poller;
-    private static final byte[] answerBuffer = ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
+    private static final byte[] answerBuffer = ByteBuffer.allocate(Constants.MAX_MESSAGE_SIZE).array();
+    private static int answerSize=0;
 
 
 
@@ -107,9 +108,9 @@ public class PeerStreamHandler extends Thread
                     if (poller.pollin(i))
                     {
                         ZMQ.Socket client = poller.getSocket(i);
-                        int size = client.recv(answerBuffer,0,answerBuffer.length,0);
+                        answerSize= client.recv(answerBuffer,0,answerBuffer.length,0);
                  //       reportWriter.printf("Handling stream request for poller index %d!\n", i);
-                        handleStream(answerBuffer,size,client);
+                        handleStream(answerBuffer,answerSize,client);
 
 
                     }
@@ -146,7 +147,7 @@ public class PeerStreamHandler extends Thread
         ZMQ.Socket socket = zeroPeerRoutingInfo.getStreamSocket(request, context);
       //  reportWriter.println("Directing stream to destination!");
         socket.send(stream,0,streamSize,0);
-        int answerSize = socket.recv(answerBuffer,0,answerBuffer.length,0 );
+        answerSize = socket.recv(answerBuffer,0,answerBuffer.length,0 );
       //  reportWriter.println("Directing stream requester!");
         out.send(answerBuffer,0,answerSize,0);
      //   reportWriter.println("Stream answer returned!");

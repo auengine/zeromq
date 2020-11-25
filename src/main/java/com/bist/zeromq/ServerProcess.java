@@ -11,6 +11,7 @@ import com.bist.zeromq.utils.ConnectionUtils;
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
 import org.zeromq.ZMQ;
+import org.zeromq.ZMsg;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -35,7 +36,7 @@ public class ServerProcess
     private static final List<MessageType> queryTypeList= MessageType.asEnum(queryList);
     private static final List<MessageType> trtTypeList= MessageType.asEnum(trtList);
 
-    private static final byte[] queryAndTrtBuffer = ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
+    private static final byte[] queryAndTrtBuffer = ByteBuffer.allocate(Constants.MAX_QUERY_SIZE).array();
 
 
     public static void main(String[] args)
@@ -69,11 +70,16 @@ public class ServerProcess
             {
                 // Block until a message is received
                // reportWriter.println("Waiting for request!");
-                int querySize = ipcInSocket.recv(queryAndTrtBuffer,0,Request.getByteSize(),0 );
+                int querySize = ipcInSocket.recv(queryAndTrtBuffer,0,queryAndTrtBuffer.length,0 );
                 Request request=Request.decodedForm(queryAndTrtBuffer);
              //   reportWriter.printf("Request is %s answer size %s!\n",request.toString(),request.getRequestedAnswerSize().getSize());
-                ipcInSocket.send(AnswerService.getAnswer(),0,request.getRequestedAnswerSize().getSize(), 0);
+               if(!AnswerService.getAnswer(request.getRequestedAnswerSize()).send(ipcInSocket,false)){
+                   reportWriter.println("Send failed, stoping app");
+                   throw new IllegalStateException("Send failed in server.");
+               }
+              //  ipcInSocket.send(AnswerService.getAnswer(),0,request.getRequestedAnswerSize().getSize(), 0);
                // reportWriter.println("Requested answered!");
+
             }
         }
         catch (Exception e)
