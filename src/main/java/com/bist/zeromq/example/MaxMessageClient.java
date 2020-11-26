@@ -19,6 +19,7 @@ public class MaxMessageClient
     private static String instanceName =   UUID.randomUUID().toString();
 
     private static final byte[] answer = ByteBuffer.allocate(MaxMessageServer.MAX_ANW_BUFFER).array();
+    private static  ByteBuffer answerBuf = ByteBuffer.allocate(MaxMessageServer.MAX_ANW_BUFFER);
 
     private static ReportWriter reportWriter;
     private static ZContext context;
@@ -43,10 +44,9 @@ public class MaxMessageClient
             queryBuffer[queryBuffer.length-1]=(byte)MaxMessageServer.qEnd;
 
 
-            Msg msq= new Msg();
-            ZFrame frame =new ZFrame(queryBuffer);
-            ZMsg queryZ= new ZMsg();
-            queryZ.add(frame);
+
+            ZFrame qFrame =new ZFrame(queryBuffer);
+
 
 
             // Socket to talk to clients
@@ -60,11 +60,18 @@ public class MaxMessageClient
                // String message = "Hi!" + instanceName +  " index :" + i;
                 //reportWriter.println("Sending message: " + message);
                // socket.send(testBuffer,0,testBuffer.length,0);
-               if(!queryZ.send(socket,false)){
-                   reportWriter.println("Query failed i: " + i);
-               }
+                qFrame.sendAndKeep(socket,0);
                 i++;
-                socket.recv(0);
+
+               // ZFrame f= ZFrame.recvFrame(socket,0&128&);
+               // f.destroy();
+                //ZMsg answer=ZMsg.recvMsg(socket,0);
+                //answer.destroy();
+                socket.recvByteBuffer(answerBuf,0);
+                answerBuf.clear();
+
+
+               // int readSize= socket.recv(answer,0,answer.length, 0);
                /*
                 // Block until a message is received
                 ZMsg a=ZMsg.recvMsg(socket,0);
