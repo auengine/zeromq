@@ -21,6 +21,7 @@ public class ServerProcess
 {
     private static  int peerCommandPort = Configuration.SERVER_COMMAND_PORT;
     private static final int instanceId = Configuration.INSTANCE_ID;
+    private static final String serverIp = Configuration.SERVER_IP;
     private static final List<Integer> queryList = Configuration.getSortedProperties(
         Configuration.QEUERY_LIST);
     private static final List<Integer> trtList = Configuration.getSortedProperties(
@@ -46,7 +47,7 @@ public class ServerProcess
 
             reportWriter = GeneralUtils.createReportFile(ServerProcess.class.getSimpleName());
             reportWriter.printf("Starting %s with name %s\n",  ServerProcess.class.getSimpleName(),instanceName);
-            reportWriter.printf("Peer Port: %d\n",  peerCommandPort);
+            reportWriter.printf("Peer Port: %d, ip: %s\n",  peerCommandPort,serverIp);
             context = new ZContext();
 
             ProcessInfo processInfo = new ProcessInfo(instanceName, AppType.SERVER,ipcIn,queryTypeList,trtTypeList);
@@ -55,7 +56,7 @@ public class ServerProcess
             // Socket to talk to peer process command port
             reportWriter.println("Connecting peer command port");
             commandSocket = context.createSocket(SocketType.REQ);
-            commandSocket.connect(ConnectionUtils.tcp(peerCommandPort));
+            commandSocket.connect(ConnectionUtils.tcp(serverIp,peerCommandPort));
             String base64Command= CommandService.createCommand(processInfo, CommandCode.REGISTER_NEW_PROCESS_TO_PEER);
             commandSocket.send(base64Command);
             //  wait for  reply

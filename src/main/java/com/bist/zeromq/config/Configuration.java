@@ -14,6 +14,7 @@ public class Configuration
     public static final int PUBLISHER_SUBSCRIBE_PORT;
     public static final int PUBLISHER_COMMAND_PORT;
     public static final String SERVER_IP;
+    public static final String DEST_SERVER_IP;
     public static final String PUBLISHER_IP;
     public static final String PUBLISHER_ZIPCODE;
 
@@ -40,6 +41,7 @@ public class Configuration
     private static final String SERVER_COMMAND_PORT_PROP = "zeromq.config.server.port";
     private static final String SERVER_STREAM_PORT_PROP = "zeromq.config.server.stream.port";
     private static final String SERVER_IP_PROP = "zeromq.config.server.ip";
+    private static final String DEST_SERVER_IP_PROP = "zeromq.config.dest.server.ip";
     private static final String PUBLISHER_COMMAND_PORT_PROP = "zeromq.config.publisher.server.port";
     // private static final String TRACKER_SERVER_IP_PROP = "zeromq.config.tracker.ip";
     private static final String PUBLISHER_SUBSCRIBE_PORT_PROP = "zeromq.config.publisher.port";
@@ -66,6 +68,7 @@ public class Configuration
         PUBLISHER_SUBSCRIBE_PORT = Integer.getInteger(PUBLISHER_SUBSCRIBE_PORT_PROP, 20321).shortValue();
         PUBLISHER_COMMAND_PORT = Integer.getInteger(PUBLISHER_COMMAND_PORT_PROP, 20123).shortValue();
         SERVER_IP = System.getProperty(SERVER_IP_PROP, "127.0.0.1");
+        DEST_SERVER_IP = System.getProperty(DEST_SERVER_IP_PROP, "127.0.0.1");
         //  TRACKER_SERVER_IP = System.getProperty(TRACKER_SERVER_IP_PROP, "127.0.0.1");
         PUBLISHER_IP = System.getProperty(PUBLISHER_IP_PROP, "127.0.0.1");
         PUBLISHER_ZIPCODE = System.getProperty(PUBLISHER_ZIPCODE_PROP, "10001");

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##Usage : ./serverProcess [peerCommandPort] [instanceId] [QueryList] [TrtList]
+##Usage : ./serverProcess [peerCommandPort] [peerIp] [instanceId] [QueryList] [TrtList]
 ##Usage : ./serverProcess  20123 1 1|2 4|5
 
 VERSION=$(cat ../version.txt)
@@ -17,7 +17,8 @@ VERSION=$(cat ../version.txt)
     -XX:NewRatio=1 \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=$1 \
-    -Dzeromq.config.instance.id=$2 \
-    -Dzeromq.config.query.list=$3 \
-    -Dzeromq.config.trt.list=$4 \
+    -Dzeromq.config.server.ip=$2 \
+    -Dzeromq.config.instance.id=$3 \
+    -Dzeromq.config.query.list=$4 \
+    -Dzeromq.config.trt.list=$5 \
      ${JVM_OPTS} com.bist.zeromq.ServerProcess

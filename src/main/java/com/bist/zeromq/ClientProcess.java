@@ -27,6 +27,7 @@ public class ClientProcess
 {
     private static final int instanceId = Configuration.INSTANCE_ID;
     private static final String ipcOut = "ipc_c_out_" + instanceId;  //ClientProcess.class.getSimpleName();.
+    private static final String serverIp = Configuration.SERVER_IP;
     private static final int peerCommandPort = Configuration.SERVER_COMMAND_PORT;
     private static final String instanceName = UUID.randomUUID().toString();
     private static final int messageTypeOpt = Configuration.MESSAGE_TYPE_ITEM;
@@ -34,7 +35,7 @@ public class ClientProcess
     private static final String waitTill = Configuration.WAIT_TIME_TILL;
     private static final Statistics statistics = new LatencyStatistics(10);
     private static final int numberOfMessages = Configuration.MESSAGE_COUNT;
-    private static final int numberOfWarmUpMessages = 10;
+    private static final int numberOfWarmUpMessages = 100;
     private static final byte[] answerBuffer = ByteBuffer.allocate(Constants.MAX_ANSWER_SIZE).array();
     private static final int totalClientCount = Configuration.TOTAL_CLIENT_COUNT;
     private static final int totalMessageTypeCount = Configuration.TOTAL_MESSAGE_TYPE_COUNT;
@@ -57,7 +58,7 @@ public class ClientProcess
 
             reportWriter = GeneralUtils.createReportFile(ClientProcess.class.getSimpleName() + instanceName);
             reportWriter.printf("Starting %s with name %s\n", ClientProcess.class.getSimpleName(), instanceName);
-            reportWriter.printf("Peer Port: %d\n", peerCommandPort);
+            reportWriter.printf("Peer Port: %d, Ip: %s\n",  peerCommandPort,serverIp);
             String staticticPath = GeneralUtils
                 .createBasePath(messageType, messageSize, totalClientCount, totalMessageTypeCount, instanceId);
 
@@ -77,7 +78,7 @@ public class ClientProcess
             // Socket to talk to peer process command port
             reportWriter.println("Connecting peer command port");
             commandSocket = context.createSocket(SocketType.REQ);
-            commandSocket.connect(ConnectionUtils.tcp(peerCommandPort));
+            commandSocket.connect(ConnectionUtils.tcp(serverIp,peerCommandPort));
             commandSocket.send(CommandService.createCommand(processInfo, CommandCode.REGISTER_NEW_PROCESS_TO_PEER));
 
             //  - wait for  reply

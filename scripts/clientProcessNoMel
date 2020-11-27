@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-##Usage : ./clientProcess [peerCommandPort] [instanceId] [messageType] [messageSize] [messageCount]
+##Usage : ./clientProcess [peerCommandPort] [peerIp] [instanceId] [messageType] [messageSize] [messageCount]
 ##                        [totalClientCount] [totalMessageTypeCount] [startTime]
 ##Usage : ./clientProcess  20124 1 1|2|4|5 0|1|2.. 1000 1 1 12:15
 
@@ -18,11 +18,12 @@ VERSION=$(cat ../version.txt)
     -XX:NewRatio=1 \
     -XX:+PrintGC \
     -Dzeromq.config.server.port=$1 \
-    -Dzeromq.config.instance.id=$2 \
-    -Dzeromq.config.message.item=$3 \
-    -Dzeromq.config.message.size=$4 \
-    -Dzeromq.config.message.count=$5 \
-    -Dzeromq.config.test.client.total.count=$6 \
-    -Dzeromq.config.test.message.type.count=$7 \
-    -Dzeromq.config.test.wait.time=$8 \
+    -Dzeromq.config.server.ip=$2 \
+    -Dzeromq.config.instance.id=$3 \
+    -Dzeromq.config.message.item=$4 \
+    -Dzeromq.config.message.size=$5 \
+    -Dzeromq.config.message.count=$6 \
+    -Dzeromq.config.test.client.total.count=$7 \
+    -Dzeromq.config.test.message.type.count=$8 \
+    -Dzeromq.config.test.wait.time=$9 \
      ${JVM_OPTS} com.bist.zeromq.ClientProcess

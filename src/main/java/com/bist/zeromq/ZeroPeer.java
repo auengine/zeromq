@@ -49,12 +49,12 @@ public class ZeroPeer
             reportWriter = GeneralUtils.createReportFile(ZeroPeer.class.getSimpleName());
             reportWriter.printf("Starting %s with name %s\n", ZeroPeer.class.getSimpleName(), instanceName);
             reportWriter
-                .printf("Port: %d, publisherIp: %s, publisherSubscribePort: %d \n", serverCommandPort, publisherIp, publisherSubscribePort);
+                .printf("Port: %d, Server ip: %s, publisherIp: %s, publisherSubscribePort: %d \n", serverCommandPort,serverIp, publisherIp, publisherSubscribePort);
             context = new ZContext();
 
             // Socket for commands
             commandSocket = context.createSocket(SocketType.REP);
-            commandSocket.bind(ConnectionUtils.tcp(serverCommandPort));
+            commandSocket.bind(ConnectionUtils.tcp(serverIp,serverCommandPort));
 
             //Socket for message stream
             streamSocket = context.createSocket(SocketType.REP);

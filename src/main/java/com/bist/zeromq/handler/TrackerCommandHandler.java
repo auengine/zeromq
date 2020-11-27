@@ -51,7 +51,7 @@ public class TrackerCommandHandler extends Thread
              //bind
             publisherSocket = context.createSocket(SocketType.PUB);
             publisherSocket.bind(
-                ConnectionUtils.tcp(zeroTrackerRoutingInfo.getCurrentTrackerInfo().getPublisherPort()));
+                ConnectionUtils.tcp(zeroTrackerRoutingInfo.getCurrentTrackerInfo().getIp(),zeroTrackerRoutingInfo.getCurrentTrackerInfo().getPublisherPort()));
 
             inProcSocket.send(AnswerService.getOKMessage());
 

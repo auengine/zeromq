@@ -41,7 +41,7 @@ public class ZeroPeerTracker
 
             // Socket to talk to peers
             commandSocket = context.createSocket(SocketType.REP);
-            commandSocket.bind(ConnectionUtils.tcp(serverCommandPort));
+            commandSocket.bind(ConnectionUtils.tcp(serverIp,serverCommandPort));
 
             // Thread  socket
             inProcSocket = context.createSocket(SocketType.PAIR);

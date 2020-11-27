@@ -1,6 +1,7 @@
 package com.bist.zeromq.example;
 
 import com.bist.zeromq.config.Configuration;
+import com.bist.zeromq.config.Constants;
 import com.bist.zeromq.utils.ConnectionUtils;
 import com.bist.zeromq.utils.GeneralUtils;
 import com.bist.zeromq.utils.ReportWriter;
@@ -12,7 +13,8 @@ import java.util.UUID;
 
 public class MaxMessageServer
 {
-    private static final int serverPort =20104;
+    private static final int serverPort =Configuration.SERVER_COMMAND_PORT;
+    private static final String serverIp = Configuration.SERVER_IP;
     public static int MAX_ANW_BUFFER=1024*1024*30;
     public static int MAX_Q_BUFFER=1024*1024*1;
 
@@ -32,7 +34,7 @@ public class MaxMessageServer
         {
             reportWriter = GeneralUtils.createReportFile(MaxMessageServer.class.getSimpleName());
             reportWriter.printf("Starting %s with name %s\n",  MaxMessageServer.class.getSimpleName(),instanceName);
-            reportWriter.printf("Port: %d\n",  serverPort);
+            reportWriter.printf("Port: %d, ip: %s\n",  serverPort,serverIp);
             context = new ZContext();
             final byte[] answer = ByteBuffer.allocate(MaxMessageServer.MAX_ANW_BUFFER).array();
              for (int i =0; i<answer.length;i++){
@@ -52,7 +54,7 @@ public class MaxMessageServer
 
             // Socket to talk to clients
             ZMQ.Socket socket = context.createSocket(SocketType.REP);
-            socket.bind(ConnectionUtils.tcp(serverPort));
+            socket.bind(ConnectionUtils.tcp(serverIp,serverPort));
             // Block until a message is received
             reportWriter.println("Calling recv ");
 
@@ -78,7 +80,7 @@ public class MaxMessageServer
                 // Send a response
                // socket.send(answer,0,answer.length,0 );
                 answerZ.send(socket,false);
-                reportWriter.println("Response send");
+                reportWriter.println("Response send!");
             }
         }
         catch (Exception e)

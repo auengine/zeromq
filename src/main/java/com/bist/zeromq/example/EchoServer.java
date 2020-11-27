@@ -29,7 +29,7 @@ public class EchoServer
 
             // Socket to talk to clients
             ZMQ.Socket socket = context.createSocket(SocketType.REP);
-            socket.bind(ConnectionUtils.tcp(serverPort));
+            socket.bind(ConnectionUtils.tcpOld(serverPort));
 
             while (!Thread.currentThread().isInterrupted())
             {

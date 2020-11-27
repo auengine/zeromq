@@ -30,7 +30,7 @@ public class WeatherPublisher
 
             // Socket to publish  clients
             ZMQ.Socket publisher = context.createSocket(SocketType.PUB);
-            publisher.bind(ConnectionUtils.tcp(serverPort));
+            publisher.bind(ConnectionUtils.tcpOld(serverPort));
            // publisher.bind(StringUtils.ipc("weather"));
 
 

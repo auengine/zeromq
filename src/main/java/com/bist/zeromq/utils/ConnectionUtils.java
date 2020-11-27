@@ -3,7 +3,7 @@ package com.bist.zeromq.utils;
 public class ConnectionUtils
 {
 
-    public static String tcp(int port)
+    public static String tcpOld(int port)
     {
         return "tcp://*:" + port;
     }
@@ -20,12 +20,16 @@ public class ConnectionUtils
 
     public static String tcp(String ip, int port)
     {
-        if(ip == null || ip.isEmpty()){
-            return  tcp(port);
-        }
+
         return "tcp://" + ip + ":" + port;
     }
 
+
+    public static String tcp(String localIp, int localPort,String destIP, int destPort)
+    {
+
+        return "tcp://" + localIp + ":" + localPort + ";"+ destIP+ ":" + destPort;
+    }
 
 
 }
